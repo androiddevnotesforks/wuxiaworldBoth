@@ -47,6 +47,7 @@ services:
       - "0.0.0.0:80:80"
       - "0.0.0.0:443:443"
       - "0.0.0.0:5555:5555"
+      - "0.0.0.0:3000:3000"
     labels:
       - "traefik.http.routers.web-secure-router.middlewares=traefik-compress"
       - "traefik.http.middlewares.traefik-compress.compress=true"
