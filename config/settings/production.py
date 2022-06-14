@@ -24,8 +24,8 @@ ALLOWED_HOSTS = ["wuxianovels.co",'wuxiaworld.eu','piratenovel.com',
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOWED_ORIGINS  = (
                 "https://www.wuxianovels.co",'https://www.wuxiaworld.eu','https://www.piratenovel.com',
-                "wuxia.click", "www.wuxia.click", "https://www.wuxia.click",
-                "djangocutter.xyz", "www.djangocutter.xyz"
+                "https://www.wuxia.click",
+               "https://www.djangocutter.xyz"
                 )
 
 # DATABASES
