@@ -59,10 +59,10 @@ services:
     image: wuxiaworld_production_celeryworker
     command: /start-celeryworker
 
-  celerybeat:
-    <<: *django
-    image: wuxiaworld_production_celerybeat
-    command: /start-celerybeat
+  # celerybeat:
+  #   <<: *django
+  #   image: wuxiaworld_production_celerybeat
+  #   command: /start-celerybeat
 
   flower:
     <<: *django
