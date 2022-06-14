@@ -30,17 +30,6 @@ certificatesResolvers:
 
 http:
   routers:
-    web-secure-router:
-      rule: 'Host(`djangocutter.xyz`) && PathPrefix(`/api/`, `/api-schema/`, `/{{env "DJANGO_ADMIN_URL"}}` ) || Host(`www.djangocutter.xyz`) && PathPrefix(`/api/`, `/api-schema/`, `/{{env "DJANGO_ADMIN_URL"}}`)'
-      entryPoints:
-        - web-secure
-      middlewares:
-        - csrf
-      service: django
-      tls:
-        # https://docs.traefik.io/master/routing/routers/#certresolver
-        certResolver: letsencrypt
-
     web-secure-router-frontend:
       rule: "Host(`djangocutter.xyz`) || Host(`www.djangocutter.xyz`)"
       entryPoints:
@@ -48,6 +37,17 @@ http:
       middlewares:
         - csrf
       service: frontend
+      tls:
+        # https://docs.traefik.io/master/routing/routers/#certresolver
+        certResolver: letsencrypt
+
+    web-secure-router:
+      rule: "Host(`djangocutter.xyz`) && PathPrefix(`/api/`, `/api-schema/`, `/admin/` ) || Host(`www.djangocutter.xyz`) && PathPrefix(`/api/`, `/api-schema/`, `/admin/`)"
+      entryPoints:
+        - web-secure
+      middlewares:
+        - csrf
+      service: django
       tls:
         # https://docs.traefik.io/master/routing/routers/#certresolver
         certResolver: letsencrypt
