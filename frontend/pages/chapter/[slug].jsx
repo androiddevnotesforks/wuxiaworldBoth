@@ -33,7 +33,7 @@ export async function getStaticPaths() {
   };
 
   const fetched_chapters = await axios
-    .get(`${apiHome}/chapters/library-of-heavens-path}/`, {})
+    .get(`${apiHome}/chapters/library-of-heavens-path/`, {})
     .then((response) => {
       const res = response.data;
       return res;
