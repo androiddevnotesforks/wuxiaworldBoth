@@ -96,6 +96,10 @@ http:
       loadBalancer:
         servers:
           - url: http://flower:5555
+    frontend:
+      loadBalancer:
+        servers:
+          - url: http://frontend:3000
 
 providers:
   # https://docs.traefik.io/master/providers/file/
