@@ -69,16 +69,16 @@ services:
     image: wuxiaworld_production_flower
     command: /start-flower
 
-  # frontend:
-  #   image: wuxiaworld_production_frontend
-  #   container_name: wuxiaworld_production_frontend
-  #   build:
-  #     context: .
-  #     dockerfile: ./compose/production/frontend/Dockerfile
+  frontend:
+    image: wuxiaworld_production_frontend
+    container_name: wuxiaworld_production_frontend
+    build:
+      context: .
+      dockerfile: ./compose/production/frontend/Dockerfile
 
-  #   depends_on:
-  #     - redis
-  #     - postgres
-  #     - django
-  #   ports:
-  #     - "3000:3000"
+    depends_on:
+      - redis
+      - postgres
+      - django
+    ports:
+      - "3000:3000"
