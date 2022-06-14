@@ -36,6 +36,7 @@ http:
         - web-secure
       middlewares:
         - csrf
+        - test-compress
       service: frontend
       tls:
         # https://docs.traefik.io/master/routing/routers/#certresolver
