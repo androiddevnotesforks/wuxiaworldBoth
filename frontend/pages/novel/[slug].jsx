@@ -38,13 +38,13 @@ export async function getStaticPaths() {
       headers,
     }
   );
-  const urls = response.data.slice(0, 1000).map((item) => {
+  const urls = response.data.slice(0, 10).map((item) => {
     const value = { params: { slug: item.slug } };
     return value;
   });
   return {
     paths: [...urls],
-    fallback: 'blocking', // false or 'blocking'
+    fallback: "blocking", // false or 'blocking'
   };
 }
 

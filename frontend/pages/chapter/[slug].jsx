@@ -40,7 +40,7 @@ export async function getStaticPaths() {
     })
     .catch((error) => console.log(error));
 
-  const all_chaps = fetched_chapters.slice(0, 1000);
+  const all_chaps = fetched_chapters.slice(0, 10);
 
   const paths_to_return = all_chaps.map((chap) => {
     const value = { slug: chap.novSlugChapSlug };
