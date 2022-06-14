@@ -80,5 +80,3 @@ services:
       - redis
       - postgres
       - django
-    ports:
-      - "3000:3000"
