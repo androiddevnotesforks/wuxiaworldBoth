@@ -1,0 +1,107 @@
+log:
+  level: INFO
+
+entryPoints:
+  web:
+    # http
+    address: ":80"
+    http:
+      # https://docs.traefik.io/routing/entrypoints/#entrypoint
+      redirections:
+        entryPoint:
+          to: web-secure
+
+  web-secure:
+    # https
+    address: ":443"
+
+  flower:
+    address: ":5555"
+
+certificatesResolvers:
+  letsencrypt:
+    # https://docs.traefik.io/master/https/acme/#lets-encrypt
+    acme:
+      email: "mesmer@mail.com"
+      storage: /etc/traefik/acme/acme.json
+      # https://docs.traefik.io/master/https/acme/#httpchallenge
+      httpChallenge:
+        entryPoint: web
+
+http:
+  routers:
+    web-secure-router:
+      rule: 'Host(`djangocutter.xyz`) && PathPrefix(`/api/`, `/api-schema/`, `/{{env "DJANGO_ADMIN_URL"}}` ) || Host(`www.djangocutter.xyz`) && PathPrefix(`/api/`, `/api-schema/`, `/{{env "DJANGO_ADMIN_URL"}}`)'
+      entryPoints:
+        - web-secure
+      middlewares:
+        - csrf
+        - test-compress
+      service: django
+      tls:
+        # https://docs.traefik.io/master/routing/routers/#certresolver
+        certResolver: letsencrypt
+
+    web-secure-router-frontend:
+      rule: "Host(`djangocutter.xyz`) || Host(`www.djangocutter.xyz`)"
+      entryPoints:
+        - web-secure
+      middlewares:
+        - csrf
+
+      service: frontend
+      tls:
+        # https://docs.traefik.io/master/routing/routers/#certresolver
+        certResolver: letsencrypt
+
+    # web-secure-router:
+    #   rule: "Host(`wuxia.click`) || Host(`www.wuxia.click`)"
+    #   entryPoints:
+    #     - web-secure
+    #   middlewares:
+    #     - csrf
+    #     - test-compress
+    #   service: django
+    #   tls:
+    #     # https://docs.traefik.io/master/routing/routers/#certresolver
+    #     certResolver: letsencrypt
+
+    flower-secure-router:
+      rule: "Host(`djangocutter.xyz`)"
+      entryPoints:
+        - flower
+      service: flower
+      tls:
+        # https://docs.traefik.io/master/routing/routers/#certresolver
+        certResolver: letsencrypt
+
+  middlewares:
+    csrf:
+      # https://docs.traefik.io/master/middlewares/headers/#hostsproxyheaders
+      # https://docs.djangoproject.com/en/dev/ref/csrf/#ajax
+      headers:
+        hostsProxyHeaders: ["X-CSRFToken"]
+    test-compress:
+      compress:
+        excludedContentTypes:
+          - text/event-stream
+
+  services:
+    django:
+      loadBalancer:
+        servers:
+          - url: http://django:5000
+
+    flower:
+      loadBalancer:
+        servers:
+          - url: http://flower:5555
+
+providers:
+  # https://docs.traefik.io/master/providers/file/
+  file:
+    filename: /etc/traefik/traefik.yml
+    watch: true
+labels:
+  - "traefik.http.routers.web-secure-router.middlewares=traefik-compress"
+  - "traefik.http.middlewares.traefik-compress.compress=true"
