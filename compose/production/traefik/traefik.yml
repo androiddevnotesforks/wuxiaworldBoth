@@ -43,7 +43,7 @@ http:
         certResolver: letsencrypt
 
     web-secure-router:
-      rule: "Host(`djangocutter.xyz`) && PathPrefix(`/api/`, `/api-schema/`, `/admin/` ) ' || Host(`www.djangocutter.xyz`) && PathPrefix(`/api/`, `/api-schema/`, `/admin/`) || Host(`wuxiaworld.eu`) && PathPrefix(`/api/`, `/api-schema/`, `/admin/` ) ' || Host(`www.wuxiaworld.eu`) && PathPrefix(`/api/`, `/api-schema/`, `/admin/`)"
+      rule: "Host(`djangocutter.xyz`) && PathPrefix(`/api/`, `/api-schema/`, `/admin/` ) || Host(`www.djangocutter.xyz`) && PathPrefix(`/api/`, `/api-schema/`, `/admin/`) || Host(`wuxiaworld.eu`) && PathPrefix(`/api/`, `/api-schema/`, `/admin/` ) || Host(`www.wuxiaworld.eu`) && PathPrefix(`/api/`, `/api-schema/`, `/admin/`)"
       entryPoints:
         - web-secure
       middlewares:
