@@ -31,7 +31,7 @@ certificatesResolvers:
 http:
   routers:
     web-secure-router-frontend:
-      rule: "Host(`djangocutter.xyz`) || Host(`www.djangocutter.xyz`)|| Host(`wuxiaworld.eu`) || Host(`www.wuxiaworld.eu`)"
+      rule: "Host(`wuxiaworld.eu`) || Host(`www.wuxiaworld.eu`)"
       entryPoints:
         - web-secure
       middlewares:
@@ -43,7 +43,7 @@ http:
         certResolver: letsencrypt
 
     web-secure-router:
-      rule: "Host(`djangocutter.xyz`) && PathPrefix(`/api/`, `/api-schema/`, `/admin/` ) || Host(`www.djangocutter.xyz`) && PathPrefix(`/api/`, `/api-schema/`, `/admin/`) || Host(`wuxiaworld.eu`) && PathPrefix(`/api/`, `/api-schema/`, `/admin/` ) || Host(`www.wuxiaworld.eu`) && PathPrefix(`/api/`, `/api-schema/`, `/admin/`)"
+      rule: "Host(`wuxiaworld.eu`) && PathPrefix(`/api/`, `/api-schema/`, `/admin/` ) || Host(`www.wuxiaworld.eu`) && PathPrefix(`/api/`, `/api-schema/`, `/admin/`)"
       entryPoints:
         - web-secure
       middlewares:
@@ -66,7 +66,7 @@ http:
     #     certResolver: letsencrypt
 
     flower-secure-router:
-      rule: "Host(`djangocutter.xyz`)||Host(`wuxiaworld.eu`)"
+      rule: "Host(`wuxiaworld.eu`)"
       entryPoints:
         - flower
       service: flower
