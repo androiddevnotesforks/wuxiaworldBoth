@@ -71,7 +71,7 @@ class Tag(BaseModel):
         ordering = ['name']
 
 class NovelViews(BaseModel):
-    viewsNovelName = models.SlugField(max_length = 200, default = "",unique = True)
+    viewsNovelName = models.SlugField(max_length = 500, default = "",unique = True)
     views = models.IntegerField(default = 0)
     weeklyViews = models.IntegerField(default=0)
     monthlyViews = models.IntegerField(default=0)
@@ -90,7 +90,7 @@ class NovelViews(BaseModel):
                     yearlyViews = F('yearlyViews')+increment_num)
         
 class Novel(BaseModel):
-    name = models.CharField(max_length = 200)
+    name = models.CharField(max_length = 500)
     image = models.URLField(blank = True)
     imageThumb = models.URLField(blank = True)
     linkNU = models.URLField(blank = True)
@@ -98,7 +98,7 @@ class Novel(BaseModel):
     category = models.ManyToManyField(Category, blank=True)
     tag = models.ManyToManyField(Tag, blank=True, default = None)
     description = models.TextField(blank = True)
-    slug = models.SlugField(primary_key = True, default = None, max_length=200, blank = True, unique = True)
+    slug = models.SlugField(primary_key = True, default = None, max_length=500, blank = True, unique = True)
     numOfChaps = models.IntegerField(default = 0)
     novelStatus = models.BooleanField(default = True) #True will be for Ongoing, False for Completed
     views = models.ForeignKey(NovelViews,on_delete= models.CASCADE, blank=True, null=True)

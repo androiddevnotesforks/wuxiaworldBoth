@@ -1,3 +1,4 @@
+from email.policy import default
 from celery import shared_task
 from django.apps import apps
 import requests 
@@ -17,7 +18,7 @@ from urllib.request import urlretrieve
 from PIL import Image
 from django.core.files import File 
 from django.core.cache import cache
-
+import re
 # logger = logging.getLogger("sentry_sdk")
 
 chapters_folder = "chapters"
@@ -163,3 +164,144 @@ def download_images():
             except Exception as e:
                 print(e)
                 continue
+
+test_json_1 = {
+    "name": "Martial Peak",
+    "url": "https://www.novelupdates.com/series/martial-peak/",
+    "novel_info": {
+        "nu_id": "2866",
+        "description": "The journey to the martial peak is a lonely, solitary and long one.  In the face of adversity, you must survive and remain unyielding. Only then can you break through and continue on your journey to become the strongest. High Heaven Pavilion tests its disciples in the harshest ways to prepare them for this journey. One day the lowly sweeper Yang Kai managed to obtain a black book, setting him on the road to the peak of the martials world.\n",
+        "novel_type": "Web Novel",
+        "genres": [
+            {
+                "name": "Action",
+                "title": "A work typically depicting fighting, violence, chaos, and fast paced motion.",
+                "url": "https://www.novelupdates.com/genre/action/"
+            },
+        ],
+        "tags": [
+            {
+                "name": "Weak to Strong",
+                "title": "This TAG is used to indicate the stories in which the protagonist starts at a weak power level and becomes gradually strong as the story progresses.",
+                "url": "https://www.novelupdates.com/stag/weak-to-strong/"
+            }
+        ],
+        "rating_uncleaned": "(3.7 / 5.0, 665 votes)",
+        "language": {
+            "name": "Chinese",
+            "url": "https://www.novelupdates.com/language/chinese/",
+            "title": "View All Series in Chinese"
+        },
+        "authors": {
+            "Momo": {
+                "name": "Momo",
+                "url": "https://www.novelupdates.com/nauthor/momo/"
+            },
+            "\u83ab\u9ed8": {
+                "name": "\u83ab\u9ed8",
+                "url": "https://www.novelupdates.com/nauthor/%e8%8e%ab%e9%bb%98/"
+            }
+        },
+        "year_released": "2013",
+        "status_in_coo_uncleaned": "6009 Chapters (Completed)",
+        "licensed": "No",
+        "completely_translated": "No",
+        "original_publishers": {
+            "Qidian": {
+                "name": "Qidian",
+                "url": "https://www.novelupdates.com/opublisher/qidian/"
+            }
+        },
+        "english_publishers": {},
+        "rankings": {
+            "weekly_rank": "#2",
+            "monthly_rank": "#1",
+            "all_time_rank": "#2",
+            "monthly_reading_rank": "#344"
+        },
+        "reading_list_num": "8762",
+        "reviews": [
+            {
+                "profile": {
+                    "link": "https://www.novelupdates.com/user/25657/fact12345/",
+                    "name": "fact12345",
+                    "avatar": "https://forum.novelupdates.com/styles/default/xenforo/avatars/avatar_m.png"
+                },
+                "likes_received": "27",
+                "review_date": ": c711",
+                "last_read": "c711",
+                "rating": 2
+            }
+        ]
+    }
+}
+
+@shared_task()
+def load_novel_from_json():
+    Novel = apps.get_model("novels", "Novel")
+    Category = apps.get_model("novels", "Category")
+    Tag = apps.get_model("novels", "Tag")
+    Author = apps.get_model("novels", "Author")
+    categories_cache = {}
+    tags_cache = {}
+
+    with open("new_novel_data.json", "r") as f:
+        novels = json.load(f)
+    
+    for page in novels.keys():
+        for test_json in novels[page]:
+            novel_info = test_json.get("novel_info")
+            if not novel_info:
+                continue
+            novel_chapters =  re.findall(r'\d+', test_json["novel_info"]["status_in_coo_uncleaned"])
+            novel_rating =  re.findall(r'\d\.\d', test_json["novel_info"]["rating_uncleaned"])
+            if len(novel_rating) > 0:
+                novel_rating = novel_rating[0]
+            else:
+                novel_rating = "5.0"
+            
+            if len(novel_chapters) > 0:
+                novel_chapters = novel_chapters[0]
+            else:
+                novel_chapters = 0
+            try:
+                novel, _ = Novel.objects.get_or_create(
+                    linkNU = test_json["url"],
+                    defaults = {
+                        "name": test_json["name"],
+                        "linkNU": test_json["url"],
+                        "description": test_json["novel_info"]["description"],
+                        "rating": novel_rating,
+                        "numOfChaps": novel_chapters,
+                        "repeatScrape":True,
+                        })
+            except Exception as e:
+                continue
+            author_test = test_json["novel_info"]["authors"]
+            if len(author_test) > 0:
+                for author in author_test.keys():
+                    author_obj, _ = Author.objects.get_or_create(slug = 
+                        slugify(author_test[author]['name']), 
+                        defaults = {
+                            "name":author_test[author]['name'],
+                            "slug" : slugify(author_test[author]['name'])})
+                    novel.author = author_obj
+                    break
+
+            for category in test_json["novel_info"]["genres"]:
+                if category["name"] not in categories_cache:
+                    categories_cache[category["name"]], _ = Category.objects.get_or_create(slug=slugify(category["name"]),
+                        defaults = {"name": category["name"],
+                            "slug":slugify(category["name"])
+                            })
+                novel.category.add(categories_cache[category["name"]])
+
+
+            for tag in test_json["novel_info"]["tags"]:
+                if tag["name"] not in tags_cache:
+                    tags_cache[tag["name"]], _ = Tag.objects.get_or_create(slug=slugify(tag["name"]),
+                        defaults = {"name": tag["name"],
+                            "slug":slugify(tag["name"])
+                            })
+                novel.tag.add(tags_cache[tag["name"]])
+            novel.save()
