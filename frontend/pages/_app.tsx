@@ -16,10 +16,10 @@ import { getCookie, setCookies } from "cookies-next";
 const App = (props: AppProps) => {
   const {
     Component,
-    pageProps: { colorScheme, accessToken, ...pageProps },
+    pageProps: { darkMode, accessToken, ...pageProps },
   } = props;
   const store = useHydrate({
-    colorScheme,
+    darkMode,
     accessToken,
     ...pageProps.initialZustandState,
   });
