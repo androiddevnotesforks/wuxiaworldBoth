@@ -13,7 +13,12 @@ import { Pagination } from "@mantine/core";
 import LinkText from "../../components/common/LinkText.js";
 import BackgroundLoading from "../../components/Background/BackgroundLoading.js";
 import NewNovelSection from "../../components/common/NewNovelSection.js";
+import dynamic from "next/dynamic.js";
 
+const RecentlyUpdated = dynamic(
+  () => import("../../components/common/RecentlyUpdated.js"),
+  { ssr: false, loading: () => <BackgroundLoading /> }
+);
 export async function getServerSideProps(context) {
   const { slug } = context.params;
   const { page, order_by } = context.query;
@@ -199,6 +204,7 @@ const CategoryPage = ({ pages }) => {
         />
       </Center>
       <br />
+      <RecentlyUpdated category={slug} tag={null} />
     </Background>
   );
 };

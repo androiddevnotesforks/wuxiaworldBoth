@@ -33,7 +33,7 @@ const searchFetch = ({ queryKey }) => {
     link = link + `&order=${orderBy}`;
   }
   const results = axios.get(link).then((res) => {
-    const novels = res.data.results;
+    const novels = res.data;
     return novels;
   });
   return results;
@@ -53,7 +53,7 @@ export async function getServerSideProps(context) {
       link = link + `&order=${orderBy}`;
     }
     const results = axios.get(link).then((res) => {
-      const novels = res.data.results;
+      const novels = res.data;
       pages = Math.floor(res.data.count / 12);
       return novels;
     });
@@ -99,6 +99,13 @@ const SearchPage = ({ pages }) => {
         enabled: router.isReady,
       }
     );
+
+  useEffect(() => {
+    if (data) {
+      setResultCount(data?.count || 0);
+    }
+  }, [data]);
+
   const getPageButton = (props) => {
     switch (props.active) {
       case true:
@@ -189,7 +196,7 @@ const SearchPage = ({ pages }) => {
   return (
     <Background>
       <Seo
-        title={`Search Page - Find Your Favorite Novels at ${process.env.REACT_APP_SITE_NAME}`}
+        title={`Search Page - Find Your Favorite Novels at ${process.env.NEXT_PUBLIC_SITE_NAME}`}
         description={`Search for more ${searchQuery} novels at ${siteName} for free on ${siteUrl}`}
         url={`${siteUrl}${routes.search}`}
         image={""}
@@ -215,11 +222,11 @@ const SearchPage = ({ pages }) => {
         </Center>
         <OrderFilter setOrderBy={setOrderBy} orderBy={orderBy} />
         <NewNovelSection
-          novelList={data || null}
+          novelList={data?.results || null}
           headingText={`${resultCount} Results Found For '${searchQuery}'`}
         />
       </Container>
-      {data ? (
+      {data?.results ? (
         <>
           <br />
           <Center>

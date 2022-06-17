@@ -26,12 +26,22 @@ class HomeSerializerView(ListAPIView):
 
 class LatestChaptersSerializerView(ListAPIView):
     permission_classes = (ReadOnly,)
-    queryset = Chapter.objects.order_by("-created_at")[:10].prefetch_related(
+    queryset = Chapter.objects.all()
+    serializer_class = LatestChapterSerializer
+    pagination_class = None
+
+    def get_queryset(self):
+        tag = self.request.params.get('tag')
+        category = self.request.params.get('category')
+        queryset = self.queryset
+        if tag:
+            queryset = self.queryset.filter(novel__tag__slug = tag)
+        if category:
+            queryset = self.queryset.filter(novel__category__slug = category)
+        return queryset.order_by("-created_at")[:10].prefetch_related(
         "novelParent").only(
         "novelParent__name", "novelParent__new_image_thumb","created_at",
         "index","novelParent__new_image_thumb", "title", "novSlugChapSlug")
-    serializer_class = LatestChapterSerializer
-    pagination_class = None
     
     @cache_response(key_func = DefaultKeyConstructor(), timeout = 60)
     def list(self, request, *args, **kwargs):

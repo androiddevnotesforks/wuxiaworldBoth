@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import create from "zustand";
+import { setCookies } from "cookies-next";
 
 let store;
 
@@ -41,7 +42,7 @@ function initStore(preloadedState = initialState) {
       if (!loggedIn) {
         if (params.darkMode != undefined) {
           set((state) => ({ darkMode: params.darkMode }));
-          localStorage.setItem("dark-mode", JSON.stringify(params.darkMode));
+          setCookies("darkMode", params.darkMode);
         } else if (params.fontSize) {
           set((state) => ({ fontSize: params.fontSize }));
           localStorage.setItem("font-size", JSON.stringify(params.fontSize));

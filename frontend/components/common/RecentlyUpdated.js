@@ -21,16 +21,24 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
     border: 0,
   },
 }));
-const chapterFetch = () => {
-  const link = `${apiHome}/latest_chapters/`;
+const chapterFetch = ({ queryKey }) => {
+  let link = `${apiHome}/latest_chapters/`;
+  const [_, tag, category] = queryKey;
+  if (tag) {
+    link = `${apiHome}/latest_chapters/?tag=${tag}`;
+  }
+  if (category) {
+    link = `${apiHome}/latest_chapters/?category=${category}`;
+  }
+
   return axios.get(link).then((response) => {
     const res = response.data;
     return res;
   });
 };
-const RecentlyUpdated = () => {
+const RecentlyUpdated = ({ tag, category }) => {
   const { isLoading, error, data } = useQuery(
-    ["latest_chapters"],
+    ["latest_chapters", tag, category],
     chapterFetch,
     {
       refetchOnWindowFocus: true,
@@ -63,11 +71,14 @@ const RecentlyUpdated = () => {
                 <TableCell component="th" scope="row">
                   <Image
                     radius="md"
-                    src={chapter?.novel_thumb ? `${chapter?.novel_thumb?.replace(
-                      "https://cdn.wuxianovels.co/",
-                      "https://ik.imagekit.io/opyvhypp7cj/"
-                    )}?tr=w-80`
-                  : ""}
+                    src={
+                      chapter?.novel_thumb
+                        ? `${chapter?.novel_thumb?.replace(
+                            "https://cdn.wuxianovels.co/",
+                            "https://ik.imagekit.io/opyvhypp7cj/"
+                          )}?tr=w-80`
+                        : ""
+                    }
                     alt={chapter.novel_name}
                     width={50}
                     height={80}

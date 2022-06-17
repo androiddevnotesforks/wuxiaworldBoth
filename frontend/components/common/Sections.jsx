@@ -1,9 +1,10 @@
-import { Title, Grid, Col, Card, Text } from "@mantine/core";
+import { Title, Grid, Col, Card, Text, Badge, Container } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import Link from "next/link";
 import NewBookCard from "./NewBookCard";
 import { routes } from "../utils/Routes";
 import { useEffect, useState } from "react";
+import LinkText from "./LinkText";
 
 const Sections = ({ categoryName, categorySlug, novelList, tagSlug }) => {
   const [desktop, setDesktop] = useState(false);
@@ -18,17 +19,17 @@ const Sections = ({ categoryName, categorySlug, novelList, tagSlug }) => {
       <NewBookCard
         bookName={novel.name}
         imageLink={
-          novel?.image ?
-          !desktop
-            ? `${novel?.image?.replace(
-                "https://cdn.wuxianovels.co/",
-                "https://ik.imagekit.io/opyvhypp7cj/"
-              )}?tr=w-150`
-            : `${novel?.image?.replace(
-                "https://cdn.wuxianovels.co/",
-                "https://ik.imagekit.io/opyvhypp7cj/"
-              )}?tr=w-500`
-          : ""
+          novel?.image
+            ? !desktop
+              ? `${novel?.image?.replace(
+                  "https://cdn.wuxianovels.co/",
+                  "https://ik.imagekit.io/opyvhypp7cj/"
+                )}?tr=w-150`
+              : `${novel?.image?.replace(
+                  "https://cdn.wuxianovels.co/",
+                  "https://ik.imagekit.io/opyvhypp7cj/"
+                )}?tr=w-500`
+            : ""
         }
         badgeText={"New"}
         slug={novel.slug}
@@ -53,22 +54,33 @@ const Sections = ({ categoryName, categorySlug, novelList, tagSlug }) => {
       <Title align="center" sx={{ margin: "20px" }}>
         Most Viewed {categoryName} Novels
       </Title>
-      <Link
-        href={
-          tagSlug
-            ? `${routes.tag}${tagSlug}`
-            : `${routes.category}${categorySlug}`
-        }
+      <Container
+        sx={{
+          display: "flex",
+          justifyContent: "flex-end",
+          marginBottom: "10px",
+        }}
       >
-        <Text
-          size="lg"
-          transform="uppercase"
-          align="right"
-          sx={{ margin: "10px" }}
+        <Link
+          href={
+            tagSlug
+              ? `${routes.tag}${tagSlug}`
+              : `${routes.category}${categorySlug}`
+          }
         >
-          View More
-        </Text>
-      </Link>
+          <Badge
+            sx={(theme) => ({
+              float: "right",
+              marginBottom: "5px",
+            })}
+            color="grape"
+            size="xl"
+            variant="filled"
+          >
+            VIEW MORE
+          </Badge>
+        </Link>
+      </Container>
       <Grid gutter={20}>
         {novelList
           ? novels

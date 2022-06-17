@@ -13,10 +13,6 @@ const RecentlyUpdated = dynamic(
   { ssr: false, loading: () => <BackgroundLoading /> }
 );
 
-const getAbsoluteURL = (path) => {
-  return `https://${process.env.VERCEL_URL}` + path;
-};
-
 export async function getStaticProps() {
   const queryClient = new QueryClient();
   await queryClient.prefetchQuery(["home_view"], novelsFetch, {
@@ -57,7 +53,7 @@ export default function HomePage({ dehydratedState }) {
             key={category.slug}
           />
         ))}
-        <RecentlyUpdated />
+        <RecentlyUpdated tag={null} category={null} />
       </Container>
     </>
   );

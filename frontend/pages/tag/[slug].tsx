@@ -13,11 +13,17 @@ import { Pagination } from "@mantine/core";
 import LinkText from "../../components/common/LinkText.js";
 import BackgroundLoading from "../../components/Background/BackgroundLoading.js";
 import NewNovelSection from "../../components/common/NewNovelSection.js";
+import dynamic from "next/dynamic.js";
 
+const RecentlyUpdated = dynamic(
+  () => import("../../components/common/RecentlyUpdated.js"),
+  { ssr: false, loading: () => <BackgroundLoading /> }
+);
 export async function getServerSideProps(context) {
   const { slug } = context.params;
   const { page, order_by } = context.query;
   let pages;
+
   const tagFetch = ({ queryKey }) => {
     const [_, slug, page, order_by] = queryKey;
     let link = `${apiHome}/novels/?tag_name=${slug}&limit=12&offset=${
@@ -41,6 +47,7 @@ export async function getServerSideProps(context) {
       staleTime: Infinity,
     }
   );
+
   return {
     props: {
       dehydratedState: JSON.parse(JSON.stringify(dehydrate(queryClient))),
@@ -50,7 +57,7 @@ export async function getServerSideProps(context) {
 }
 const TagPage = ({ pages }) => {
   const router = useRouter();
-  const { slug, page, order_by } = router.query;
+  const { slug, page, order_by } = router.query as any;
 
   const [tagName, setTagName] = useState("");
   const [orderBy, setOrderBy] = useState(order_by || "");
@@ -80,17 +87,16 @@ const TagPage = ({ pages }) => {
     return results;
   };
 
-  const { data, error, fetchNextPage, isFetchingNextPage, status, isLoading } =
-    useQuery(
-      ["tagNovels", slug, page, orderBy],
+  const { data, error, status, isLoading } = useQuery(
+    ["tagNovels", slug, page, orderBy],
 
-      tagFetch,
-      {
-        refetchOnWindowFocus: false,
-        staleTime: Infinity,
-        enabled: router.isReady,
-      }
-    );
+    tagFetch,
+    {
+      refetchOnWindowFocus: false,
+      staleTime: Infinity,
+      enabled: router.isReady,
+    }
+  );
 
   useEffect(() => {
     if (orderBy) {
@@ -197,6 +203,7 @@ const TagPage = ({ pages }) => {
         />
       </Center>
       <br />
+      <RecentlyUpdated tag={slug} category={null} />
     </Background>
   );
 };

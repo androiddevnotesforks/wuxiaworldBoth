@@ -33,7 +33,7 @@ export async function getStaticPaths() {
     Authorization: `Token ${process.env.ADMIN_TOKEN}`,
   };
   const response = await axios.get(
-    "https://wuxia.click/api/admin-novels/?order=-total_views",
+    `${apiHome}/admin-novels/?order=-total_views`,
     {
       headers,
     }

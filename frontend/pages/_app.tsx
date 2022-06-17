@@ -10,13 +10,19 @@ import { useRouter } from "next/router";
 import Loading from "../components/common/Loading";
 import ReactGA from "react-ga4";
 // import { SessionProvider } from "next-auth/react";
+import { GetServerSidePropsContext } from "next";
+import { getCookie, setCookies } from "cookies-next";
 
 const App = (props: AppProps) => {
   const {
     Component,
-    pageProps: { session, ...pageProps },
+    pageProps: { colorScheme, accessToken, ...pageProps },
   } = props;
-  const store = useHydrate(pageProps.initialZustandState);
+  const store = useHydrate({
+    colorScheme,
+    accessToken,
+    ...pageProps.initialZustandState,
+  });
   const [queryClient] = React.useState(() => new QueryClient());
   const getLayout = Component.getLayout || ((page) => page);
   const router = useRouter();
@@ -67,23 +73,28 @@ const App = (props: AppProps) => {
 
   return (
     // <SessionProvider session={session}>
-      <StoreProvider store={store}>
-        <QueryClientProvider client={queryClient}>
-          <Hydrate state={pageProps.dehydratedState}>
-            <Background>
-              <Loading
-                isRouteChanging={state.isRouteChanging}
-                key={state.loadingKey}
-              />
-              <Navbar />
+    <StoreProvider store={store}>
+      <QueryClientProvider client={queryClient}>
+        <Hydrate state={pageProps.dehydratedState}>
+          <Background>
+            <Loading
+              isRouteChanging={state.isRouteChanging}
+              key={state.loadingKey}
+            />
+            <Navbar />
 
-              <Component {...pageProps} />
-              <Footer />
-            </Background>
-          </Hydrate>
-        </QueryClientProvider>
-      </StoreProvider>
+            <Component {...pageProps} />
+            <Footer />
+          </Background>
+        </Hydrate>
+      </QueryClientProvider>
+    </StoreProvider>
     // </SessionProvider>
   );
 };
+App.getInitialProps = ({ ctx }: { ctx: GetServerSidePropsContext }) => ({
+  darkMode: getCookie("darkMode", ctx) || true,
+  accessToken: getCookie("accessToken", ctx) || null,
+});
+
 export default App;
