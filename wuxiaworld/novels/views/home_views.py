@@ -35,9 +35,9 @@ class LatestChaptersSerializerView(ListAPIView):
         category = self.request.GET.get('category')
         queryset = self.queryset
         if tag:
-            queryset = self.queryset.filter(novel__tag__slug = tag)
+            queryset = self.queryset.filter(novelParent__tag__slug = tag)
         if category:
-            queryset = self.queryset.filter(novel__category__slug = category)
+            queryset = self.queryset.filter(novelParent__category__slug = category)
         return queryset.order_by("-created_at")[:10].prefetch_related(
         "novelParent").only(
         "novelParent__name", "novelParent__new_image_thumb","created_at",
