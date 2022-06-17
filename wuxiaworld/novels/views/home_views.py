@@ -31,8 +31,8 @@ class LatestChaptersSerializerView(ListAPIView):
     pagination_class = None
 
     def get_queryset(self):
-        tag = self.request.params.get('tag')
-        category = self.request.params.get('category')
+        tag = self.request.GET.get('tag')
+        category = self.request.GET.get('category')
         queryset = self.queryset
         if tag:
             queryset = self.queryset.filter(novel__tag__slug = tag)
