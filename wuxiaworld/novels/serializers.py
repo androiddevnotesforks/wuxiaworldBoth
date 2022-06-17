@@ -261,7 +261,15 @@ class CatOrTagSerializer(serializers.ModelSerializer):
         model = Novel
         fields = ('name', 'image','slug','description', "rating", "ranking", "views", "chapters",
         "imageThumb", "category", "tag")
-    
+
+class EmptyChapterNovelSerializer(serializers.ModelSerializer):
+    views = serializers.CharField(source = "human_views")
+    chapters = serializers.CharField(source = "chapter_count")
+
+    class Meta:
+        model = Novel
+        fields = ('name', 'slug', "ranking", "views", "chapters")
+
 class CategoryListSerializer(serializers.ModelSerializer):
     novels = serializers.SerializerMethodField(source = "get_novels")
     class Meta:

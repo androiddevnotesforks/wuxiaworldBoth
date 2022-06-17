@@ -1,4 +1,4 @@
-from wuxiaworld.novels.serializers import (HomeNovelSerializer, SearchSerializer,
+from wuxiaworld.novels.serializers import (EmptyChapterNovelSerializer, HomeNovelSerializer, SearchSerializer,
                      NovelSerializer, CatOrTagSerializer, AllNovelSerializer)
 from wuxiaworld.novels.models import Novel, NovelViews
 from rest_framework import viewsets, filters, pagination
@@ -12,6 +12,8 @@ from rest_framework_extensions.cache.decorators import (
 from django.db.models import Count
 from wuxiaworld.novels.views.cache_utils import DefaultKeyConstructor, UserKeyConstructor
 from wuxiaworld.novels.views.filter_utils import NovelParamsFilter
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 class SearchPagination(pagination.LimitOffsetPagination):       
     page_size = 6
@@ -54,6 +56,13 @@ class NovelSerializerView(viewsets.ModelViewSet):
     @cache_response(key_func = DefaultKeyConstructor(), timeout = 60*60*2)
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
+    
+    @cache_response(key_func = DefaultKeyConstructor(), timeout = 60*60*2)
+    @action(detail=False, methods=['get'], serializer_class = EmptyChapterNovelSerializer)
+    def empty_chapters(self, request, *args, **kwargs):
+        queryset = self.get_queryset().order_by('-chapter')
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
 class GetAllNovelSerializerView(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAdminUser,)
