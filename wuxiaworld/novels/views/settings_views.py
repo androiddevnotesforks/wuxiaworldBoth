@@ -18,3 +18,9 @@ class SettingsSerializerView(viewsets.ModelViewSet):
     def create(self, request):
         return Response({'message':'Not allowed'},
              status = status.HTTP_404_NOT_FOUND)
+    
+    def me(self, request):
+        object = self.queryset.filter(profile__user=self.request.user
+                         ).first()
+        serializer = SettingsSerializer(object)
+        return Response(serializer.data)
