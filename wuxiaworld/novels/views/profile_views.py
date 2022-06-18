@@ -3,7 +3,8 @@ from wuxiaworld.novels.models import Profile
 from wuxiaworld.novels.serializers import ProfileSerializer
 from rest_framework import viewsets
 from django.shortcuts import get_object_or_404
-from rest_framework.status import status
+from rest_framework import status
+
 from rest_framework.response import Response
 
 
