@@ -5,7 +5,7 @@ import { Card, Col, Grid, Title } from "@mantine/core";
 import { apiHome } from "../../utils/siteName";
 import SmallBookCard from "../../common/SmallBookCard";
 
-const Recommendations = ({ novel_slug, loadingCount }) => {
+const Recommendations = ({ novel_slug }) => {
   const mobile = useMediaQuery("(max-width: 768px)");
 
   const recommendation_fetch = () => {
@@ -44,17 +44,17 @@ const Recommendations = ({ novel_slug, loadingCount }) => {
               <SmallBookCard
                 bookName={novel.name}
                 imageLink={
-                  novel?.image ?
-                  mobile
-                    ? `${novel?.image?.replace(
-                        "https://cdn.wuxianovels.co/",
-                        "https://ik.imagekit.io/opyvhypp7cj/"
-                      )}?tr=w-150`
-                    : `${novel?.image?.replace(
-                        "https://cdn.wuxianovels.co/",
-                        "https://ik.imagekit.io/opyvhypp7cj/"
-                      )}?tr=w-500`
-                  : ""
+                  novel?.image
+                    ? mobile
+                      ? `${novel?.image?.replace(
+                          "https://cdn.wuxianovels.co/",
+                          "https://ik.imagekit.io/opyvhypp7cj/"
+                        )}?tr=w-150`
+                      : `${novel?.image?.replace(
+                          "https://cdn.wuxianovels.co/",
+                          "https://ik.imagekit.io/opyvhypp7cj/"
+                        )}?tr=w-500`
+                    : ""
                 }
                 badgeText={"New"}
                 slug={novel.slug}

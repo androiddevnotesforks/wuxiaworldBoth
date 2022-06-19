@@ -15,31 +15,43 @@ import {
 } from "@mantine/core";
 import React, { Suspense, useState, lazy, useEffect } from "react";
 import { useMediaQuery } from "@mantine/hooks";
-import { useUpdateBookmark } from "../../hooks/useBookmark.js";
 import { useNotifications } from "@mantine/notifications";
 import { useChapters } from "../../hooks/useChapters.js";
 import { useRouter } from "next/router";
 import NewCard from "../../common/NewCard";
 import { routes } from "../../utils/Routes.js";
 import dynamic from "next/dynamic";
-import { useStore } from "../../Store/StoreProvider.js";
+import { useStore } from "../../Store/Store";
 import LinkText from "../../common/LinkText.js";
 import axios from "axios";
 import { apiHome } from "../../utils/siteName.js";
+import { useBookmark, useUpdateBookmark } from "../../hooks/useBookmark";
 const ChaptersModal = dynamic(() => import("../../common/ChaptersModal"));
-function ChapterBox({ lastReadIndex, novelParent, desktop, bookmarkData }) {
+function ChapterBox({ novelParent, desktop }) {
   const [goChapter, setGoChapter] = useState(null);
   const loggedIn = useStore((state) => state.accessToken);
   const phone = useMediaQuery("(max-width: 768px)");
   const notifications = useNotifications();
   const [page, setPage] = useState(1);
   const [descending, setDescending] = useState(false);
-  const [chapters, setChapters] = useState();
-  const [lastRead, setLastRead] = useState(lastReadIndex);
+  const [chapters, setChapters] = useState(null);
   const [reportButton, setReportButton] = useState(false);
+  const [lastRead, setLastRead] = useState(null);
 
   const { isLoading, error, data, refetch } = useChapters(novelParent);
   const router = useRouter();
+  const {
+    data: bookmarkData,
+    isLoading: bookmarkLoading,
+    error: bookmarkError,
+  } = useBookmark(novelParent);
+  useEffect(() => {
+    if (bookmarkData?.data?.last_read?.index) {
+      setLastRead(bookmarkData?.data?.last_read?.index);
+    } else if (bookmarkError) {
+      setLastRead(null);
+    }
+  }, [bookmarkData]);
 
   const changeOrdering = () => {
     setDescending(!descending);
@@ -180,23 +192,22 @@ function ChapterBox({ lastReadIndex, novelParent, desktop, bookmarkData }) {
           Array.from(new Array(7)).map((element) => {
             return (
               <>
-                <Box width={3 / 5}>
+                <Box>
                   <Skeleton height={30} />
                 </Box>
-                <Box width={3 / 7}>
+                <Box>
                   <Skeleton height={30} />
                 </Box>
               </>
             );
           })}
-        {chapters?.length > 0
+        {chapters && chapters?.length > 0
           ? chapters?.slice((page - 1) * 10, page * 10).map((chapter) => {
               return (
                 <div key={chapter.novSlugChapSlug}>
                   <Group
                     position="apart"
                     sx={{
-                      div: { paddingBottom: "10px", paddingTop: "10px" },
                       position: "relative",
                     }}
                     spacing="md"
@@ -225,11 +236,11 @@ function ChapterBox({ lastReadIndex, novelParent, desktop, bookmarkData }) {
                       <Checkbox
                         key={chapter.novSlugChapSlug}
                         checked={lastRead == chapter.index}
-                        sx={{
-                          position: "absolute",
-                          right: 0,
-                          paddingLeft: "10px",
-                        }}
+                        // sx={{
+                        //   position: "absolute",
+                        //   right: 0,
+                        //   paddingLeft: "10px",
+                        // }}
                         size={phone ? "lg" : "sm"}
                         onClick={() => {
                           if (lastRead == chapter.index) {
@@ -289,7 +300,7 @@ function ChapterBox({ lastReadIndex, novelParent, desktop, bookmarkData }) {
           <Pagination
             page={page}
             total={
-              data?.length == 10 ||
+              (data?.length == 10 && data?.length) ||
               (data?.length % 10 === 0 && data?.length / 10) ||
               ~~(data?.length / 10) + 1
             }

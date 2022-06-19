@@ -7,9 +7,9 @@ import LoginIcon from "@mui/icons-material/Login";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { useMediaQuery } from "@mantine/hooks";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import { useHistory } from "react-router-dom";
 import { routes } from "../utils/Routes";
 import BookmarksIcon from "@mui/icons-material/Bookmarks";
+import { useRouter } from "next/router";
 
 const LoginButton = () => {
   const token = useStore((state) => state.accessToken);
@@ -17,7 +17,7 @@ const LoginButton = () => {
   const userInfo = useStore((state) => state.userInfo);
   const [menuOpened, setMenuOpened] = useState(false);
   const phone = useMediaQuery("(max-width: 1024px)");
-  const history = useHistory();
+  const router = useRouter();
 
   useEffect(() => {
     if (token) {
@@ -38,7 +38,7 @@ const LoginButton = () => {
       {!token && !phone && (
         <Button
           onClick={() => {
-            history.push(`${routes.login}`);
+            router.push(`${routes.login}`);
           }}
           leftIcon={<LoginIcon />}
         >
@@ -46,7 +46,7 @@ const LoginButton = () => {
         </Button>
       )}
 
-      {!phone && token && (
+      {!phone && token && userInfo && (
         <Popover
           opened={menuOpened}
           onClose={closeMenu}
@@ -63,7 +63,7 @@ const LoginButton = () => {
           sx={{ marginBottom: "10px" }}
         >
           <Button
-            onClick={() => history.push(routes.profileView)}
+            onClick={() => router.push(routes.profileView)}
             variant="outline"
             leftIcon={<AccountCircleIcon />}
             fullWidth
@@ -76,7 +76,7 @@ const LoginButton = () => {
           </Button>
 
           <Button
-            onClick={() => history.push(routes.bookmark)}
+            onClick={() => router.push(routes.bookmark)}
             variant="outline"
             leftIcon={<BookmarksIcon />}
             fullWidth

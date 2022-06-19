@@ -10,6 +10,7 @@ from wuxiaworld.scraper.tasks import continous_scrape
 from django.utils.timezone import now
 from django.db.models import Avg
 from django.db.models.functions import Round
+from django.core.cache import cache
 
 #If Novel has a scrape link, start the initial scrape of the novel and create
 # a periodic task to scrape every x interval.
@@ -90,3 +91,8 @@ def create_profile(sender, instance, created, **kwargs):
         profile = Profile.objects.create(user=instance.user, imageUrl = instance.get_avatar_url(),
                             settings = newSettings)
 
+
+@receiver(post_save, sender="novels.Settings")
+def create_profile(sender, instance, created, **kwargs):
+    if not created and instance.profile:
+        cache.set(f"profile_{instance.profile.user.id}", instance.updated_at)

@@ -43,7 +43,7 @@ http:
         certResolver: letsencrypt
 
     web-secure-router:
-      rule: "Host(`wuxiaworld.eu`) && PathPrefix(`/api/`, `/api-schema/`, `/admin/` ) || Host(`www.wuxiaworld.eu`) && PathPrefix(`/api/`, `/api-schema/`, `/admin/`)"
+      rule: "Host(`wuxiaworld.eu`) && PathPrefix(`/api/`, `/api-schema/`, `/admin/`, '/robots.txt/' ) || Host(`www.wuxiaworld.eu`) && PathPrefix(`/api/`, `/api-schema/`, `/admin/`, '/robots.txt/')"
       entryPoints:
         - web-secure
       middlewares:

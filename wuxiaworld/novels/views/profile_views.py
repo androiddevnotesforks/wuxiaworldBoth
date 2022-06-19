@@ -6,8 +6,11 @@ from django.shortcuts import get_object_or_404
 from rest_framework import status
 
 from rest_framework.response import Response
-
-
+from rest_framework.decorators import action
+from rest_framework_extensions.cache.decorators import (
+    cache_response
+)
+from wuxiaworld.novels.views.cache_utils import ProfileKeyConstructor
 class ProfileSerializerView(viewsets.ModelViewSet):
     serializer_class = ProfileSerializer
     queryset = Profile.objects.all()
@@ -19,6 +22,8 @@ class ProfileSerializerView(viewsets.ModelViewSet):
             return self.queryset.filter(user=self.request.user)
         return Profile.objects.none()
 
+    @cache_response(key_func = ProfileKeyConstructor(), timeout = 60*60*2)
+    @action(detail=False, methods=['get'])
     def me(self, request):
         object = self.queryset.filter(user=self.request.user
                          ).first()

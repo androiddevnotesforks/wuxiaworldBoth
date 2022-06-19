@@ -1,5 +1,5 @@
 import { Paper, Title, Container } from "@mantine/core";
-import { useStore } from "../Store/StoreProvider";
+import { useStore } from "../Store/Store";
 
 const Footer = () => {
   const siteName = useStore((state) => state.siteName);

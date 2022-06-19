@@ -17,6 +17,9 @@ import TagBadges from "./TagSection";
 import CategorySection from "./CategorySection";
 import { useState } from "react";
 import dynamic from "next/dynamic";
+import BookmarkButton from "./BookmarkButton";
+import LinkText from "../../common/LinkText";
+import { routes } from "../../utils/Routes";
 
 // const TagBadges = lazy(() => import("./TagSection"));
 // const CategorySection = lazy(() => import("./CategorySection"));
@@ -24,14 +27,7 @@ const ChapterBox = dynamic(() => import("./ChapterBox"), {
   ssr: false,
 });
 
-const MobileDetail = ({
-  novelData,
-  bookmarked,
-  addNovelBookmark,
-  removeNovelBookmark,
-  bookmarkData,
-  id,
-}) => {
+const MobileDetail = ({ novelData, id }) => {
   const [activeTab, setActiveTab] = useState(0);
 
   return (
@@ -49,12 +45,12 @@ const MobileDetail = ({
             <Container sx={{ maxWidth: "200px" }}>
               <Image
                 src={
-                  (novelData &&
-                    `${novelData?.image?.replace(
-                      "https://cdn.wuxianovels.co/",
-                      "https://ik.imagekit.io/opyvhypp7cj/"
-                    )}?tr=w-150`) ||
-                  ""
+                  novelData && novelData?.image
+                    ? `${novelData?.image?.replace(
+                        process.env.NEXT_PUBLIC_SPACES_LINK,
+                        process.env.NEXT_PUBLIC_IMAGE_CDN
+                      )}?tr=w-150`
+                    : ""
                 }
                 alt={novelData?.name}
                 width={"150px"}
@@ -70,26 +66,12 @@ const MobileDetail = ({
                 </Title>
                 <Text size="sm">By {novelData?.author.name}</Text>
               </Group>
-
-              {bookmarked ? (
-                <Button
-                  compact
-                  size="xl"
-                  radius={100}
-                  onClick={removeNovelBookmark}
-                >
-                  ♥
+              <BookmarkButton novelData={novelData} id={id} desktop={false} />
+              <LinkText href={`${routes.chapter}${novelData?.first_chapter}`}>
+                <Button size="sm" radius="sm">
+                  Start Reading
                 </Button>
-              ) : (
-                <Button
-                  compact
-                  size="xl"
-                  radius={100}
-                  onClick={addNovelBookmark}
-                >
-                  ♡
-                </Button>
-              )}
+              </LinkText>
               <Group sx={{ marginTop: 20 }}>
                 <Text size="xs">
                   {!novelData?.novelStatus ? "Ongoing" : "Completed"}
@@ -124,12 +106,7 @@ const MobileDetail = ({
               <Description height={200} text={novelData?.description} />
             </Tab>
             <Tab label={<Title order={3}>Chapters</Title>}>
-              <ChapterBox
-                loading={false}
-                // lastReadIndex={bookmarkData?.last_read?.index}
-                novelParent={id}
-                // bookmarkData={bookmarkData}
-              />
+              <ChapterBox novelParent={id} desktop={false} />
             </Tab>
           </Tabs>
 
@@ -142,12 +119,12 @@ const MobileDetail = ({
               <Spoiler
                 maxHeight={55}
                 showLabel={
-                  <Button variant="outline" size={15}>
+                  <Button variant="outline" size="xs">
                     ^
                   </Button>
                 }
                 hideLabel={
-                  <Button variant="outline" size={15}>
+                  <Button variant="outline" size="xs">
                     ˅
                   </Button>
                 }
@@ -164,12 +141,12 @@ const MobileDetail = ({
               <Spoiler
                 maxHeight={55}
                 showLabel={
-                  <Button variant="outline" size={15}>
+                  <Button variant="outline" size="xs">
                     ^
                   </Button>
                 }
                 hideLabel={
-                  <Button variant="outline" size={15}>
+                  <Button variant="outline" size="xs">
                     ˅
                   </Button>
                 }

@@ -7,7 +7,7 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
-import { Text, Card, Image, Loader, Center } from "@mantine/core";
+import { Text, Card, Image, Loader, Center, Title } from "@mantine/core";
 import React from "react";
 import { apiHome } from "../utils/siteName";
 import { routes } from "../utils/Routes";
@@ -47,6 +47,9 @@ const RecentlyUpdated = ({ tag, category }) => {
   );
   return (
     <Card>
+      <Center sx={{ marginTop: "10px", marginBottom: "10px" }}>
+        <Title>Latest Chapter Releases</Title>
+      </Center>
       <TableContainer>
         <Table sx={{ minWidth: 300 }} aria-label="customized table">
           <TableHead>

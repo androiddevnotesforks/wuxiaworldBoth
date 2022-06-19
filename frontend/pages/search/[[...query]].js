@@ -14,7 +14,7 @@ import {
 import { useRouter } from "next/router";
 import Background from "../../components/Background/Background";
 import { routes } from "../../components/utils/Routes";
-import { useStore } from "../../components/Store/StoreProvider";
+import { initializeStore, useStore } from "../../components/Store/Store";
 import Seo from "../../components/common/Seo";
 import OrderFilter from "../../components/common/OrderFilter";
 import NewNovelSection from "../../components/common/NewNovelSection";
@@ -42,6 +42,8 @@ const searchFetch = ({ queryKey }) => {
 export async function getServerSideProps(context) {
   const { query, page, order_by } = context.params;
   const queryClient = new QueryClient();
+  const zustandStore = initializeStore();
+
   let pages;
   const sFetch = ({ queryKey }) => {
     const [_, searchQuery, page, orderBy] = queryKey;
@@ -72,6 +74,7 @@ export async function getServerSideProps(context) {
     props: {
       dehydratedState: dehydrate(queryClient),
       pages: pages,
+      initialZustandState: JSON.parse(JSON.stringify(zustandStore.getState())),
     },
   };
 }

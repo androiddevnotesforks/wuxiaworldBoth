@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { dehydrate, QueryClient, useQuery } from "react-query";
 import { Button, Center, Container, Grid, Text } from "@mantine/core";
-import { useStore } from "../../components/Store/StoreProvider.js";
+import { initializeStore, useStore } from "../../components/Store/Store";
 import { apiHome } from "../../components/utils/siteName.js";
 import Seo from "../../components/common/Seo.js";
 import Background from "../../components/Background/Background.js";
@@ -23,6 +23,8 @@ export async function getServerSideProps(context) {
   const { slug } = context.params;
   const { page, order_by } = context.query;
   let pages;
+  const zustandStore = initializeStore();
+
   const categoryFetch = ({ queryKey }) => {
     const [_, slug, page, order_by] = queryKey;
     let link = `${apiHome}/novels/?category_name=${slug}&limit=12&offset=${
@@ -50,6 +52,7 @@ export async function getServerSideProps(context) {
     props: {
       dehydratedState: JSON.parse(JSON.stringify(dehydrate(queryClient))),
       pages: pages,
+      initialZustandState: JSON.parse(JSON.stringify(zustandStore.getState())),
     },
   };
 }

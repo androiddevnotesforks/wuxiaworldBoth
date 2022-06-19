@@ -11,10 +11,12 @@ import {
   Breadcrumbs,
   Group,
   Title,
+  Modal,
+  Textarea,
+  Select,
 } from "@mantine/core";
 import { useQueryClient } from "react-query";
 import Background from "../../Background/Background.js";
-// import ChromeReaderModeIcon from "@mui/icons-material/ChromeReaderMode";
 // import GoogleAd from "../../components/common/GoogleAd.js";
 import { useMediaQuery } from "@mantine/hooks";
 import BackgroundLoading from "../../Background/BackgroundLoading.js";
@@ -23,11 +25,11 @@ import Buttons from "../../common/Buttons.js";
 import GoogleAdSmall from "../../common/GoogleAdSmall.js";
 // import GoogleAdMobile from "../../common/GoogleAdMobile.js";
 import { useRouter } from "next/router";
-import { useStore } from "../../Store/StoreProvider.js";
-import LinkText from "../../common/LinkText.js";
-import { routes } from "../../utils/Routes.js";
-import { useChapter, chapterFetch } from "../../hooks/useChapter.js";
-import GoogleAdText from "../../common/GoogleAdText.js";
+import { useStore } from "../../Store/Store";
+import LinkText from "../../common/LinkText";
+import { routes } from "../../utils/Routes";
+import { useChapter, chapterFetch } from "../../hooks/useChapter";
+import GoogleAdText from "../../common/GoogleAdText";
 import ScrollUpButton from "./ScrollToTop.js";
 import { useNotifications } from "@mantine/notifications";
 
@@ -35,13 +37,16 @@ const ChapterView = ({ chapterSlug }) => {
   const router = useRouter();
   const queryClient = useQueryClient();
   const accessToken = useStore((state) => state.accessToken);
+  const profile = useStore((state) => state.profile);
   const changeSettings = useStore((state) => state.changeSettings);
   const fontSize = useStore((state) => state.fontSize);
   const phone = useMediaQuery("(max-width: 1024px)");
   const { data } = useChapter(chapterSlug);
-  // const [reportComment, setReportComment] = useState("");
+  const [reportComment, setReportComment] = useState("");
+  const [reportTitle, setReportTitle] = useState("");
   const notifications = useNotifications();
   const [sentReport, setSentReport] = useState(false);
+  const [opened, setOpened] = useState(false);
 
   useEffect(() => {
     if (data?.nextChap) {
@@ -57,21 +62,24 @@ const ChapterView = ({ chapterSlug }) => {
         category: "Novel View",
         action: "Chapter View",
         label: `${data?.novelParentName}`,
-        value: `${data?.title}`,
       });
     }
   }, [data]);
   const reportChapter = () => {
+    setOpened(true);
+  };
+  const sendComment = (e) => {
+    e.preventDefault();
     const notifId = notifications.showNotification({
-      title: `Thanks for informing ❤️`,
+      title: `Thanks for informing ${profile?.user?.first_name || ""}❤️`,
       message: `Will take a look and fix.`,
       autoClose: true,
     });
     const details = {
-      title: "Fix Chapter",
-      description: "something wrong here",
+      title: reportTitle,
+      description: reportComment,
       chapter: data?.id,
-      reported_by: null,
+      reported_by: profile?.user?.id,
     };
     axios
       .post(`${apiHome}/report/`, details)
@@ -79,24 +87,48 @@ const ChapterView = ({ chapterSlug }) => {
         setSentReport(true);
       })
       .catch((error) => error);
+    setOpened(false);
   };
   const addBookmark = () => {
     if (!chapterSlug) {
       return;
     }
     if (!accessToken) {
-      router.push(routes.login);
+      const newNotif = notifications.showNotification({
+        title: `Login Required`,
+        message: `Bookmark feature is only available for logged in users.`,
+        autoClose: true,
+      });
     }
     const link = `${apiHome}/bookmark/`;
     const params = { novSlugChapSlug: chapterSlug };
+    const notifId = notifications.showNotification({
+      title: `Updating Bookmarks`,
+      message: `Updating last read chapter to ${data?.title}, please wait`,
+      loading: true,
+      autoClose: false,
+      disallowClose: true,
+    });
     axios
       .post(link, params)
       .then((response) => {
         const res = response.data;
-        // toast.info("Your Novel Bookmark has been updated");
+        notifications.updateNotification(notifId, {
+          id: notifId,
+          loading: false,
+          autoClose: 2000,
+          title: `Bookmark Updated`,
+          message: `Your bookmark has been updated to ${res.last_read.title}`,
+        });
       })
       .catch((err) => {
-        // toast.error("Couldn't update your bookmark");
+        notifications.updateNotification(notifId, {
+          id: notifId,
+          loading: false,
+          autoClose: 2000,
+          title: `Error : Bookmark Not Updated`,
+          message: `An error occured, maybe try later?`,
+        });
       });
   };
 
@@ -145,7 +177,7 @@ const ChapterView = ({ chapterSlug }) => {
           {data && (
             <>
               <Center>
-                <Title order={1} transform="uppercase">
+                <Title order={1} sx={{ textTransform: "uppercase" }}>
                   {data.title}
                 </Title>
               </Center>
@@ -199,33 +231,86 @@ const ChapterView = ({ chapterSlug }) => {
                 >
                   A-
                 </Button>
-                {/* {data && (
-                  <Button
-                    onClick={addBookmark}
-                    size="xs"
-                    leftIcon={<ChromeReaderModeIcon />}
-                  >
-                    Mark Read
-                  </Button>
-                )} */}
                 {data && (
-                  <Button
-                    disabled={sentReport}
-                    onClick={reportChapter}
-                    size="xs"
-                    leftIcon={"!"}
-                  >
-                    Report Chapter
+                  <Button onClick={addBookmark} size="xs" leftIcon={<>📚</>}>
+                    Mark Read
                   </Button>
                 )}
               </Group>
             </div>
+            <Modal
+              opened={opened}
+              onClose={() => setOpened(false)}
+              overflow="inside"
+              size={phone ? "calc(100vw - 87px)" : "lg"}
+              title="Report Chapter"
+            >
+              <Paper padding="xl">
+                <form onSubmit={sendComment}>
+                  <Select
+                    label="What is the issue?"
+                    placeholder="Pick one"
+                    onChange={setReportTitle}
+                    data={[
+                      { value: "typo", label: "Typo in chapter" },
+                      {
+                        value: "index",
+                        label: "The chapter number is placed incorrectly",
+                      },
+                      {
+                        value: "corrupted",
+                        label: "Chapter is corrupted/not readable",
+                      },
+                      {
+                        value: "part-missing",
+                        label: "Part of the chapter is missing",
+                      },
+                    ]}
+                  />
+                  <Textarea
+                    placeholder="Your comment"
+                    label="Your comment"
+                    required
+                    value={reportComment}
+                    onChange={(event) =>
+                      setReportComment(event.currentTarget.value)
+                    }
+                  />
+                  <Button type="submit" radius="lg" size="xs">
+                    {" "}
+                    Submit{" "}
+                  </Button>
+                </form>
+              </Paper>
+            </Modal>
             {!data?.text ? (
               <Container sx={{ position: "relative" }}>
                 <BackgroundLoading />
               </Container>
             ) : (
-              <>{chapterParts}</>
+              <>
+                {chapterParts}
+                <Container
+                  sx={{
+                    paddingTop: "10px",
+                    paddingBottom: "10px",
+                  }}
+                >
+                  {data && (
+                    <Button
+                      disabled={sentReport}
+                      onClick={reportChapter}
+                      size="xs"
+                      leftIcon={"!"}
+                      sx={{
+                        float: "right",
+                      }}
+                    >
+                      Report Chapter
+                    </Button>
+                  )}
+                </Container>
+              </>
             )}
           </Paper>
         </div>

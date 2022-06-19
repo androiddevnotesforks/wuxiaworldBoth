@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 
-const GoogleAdText = ({ pageParam, adNum, addedStyles }) => {
+const GoogleAdText = ({ pageParam, adNum, addedStyles = null }) => {
   useEffect(() => {
     const pushAd = () => {
       try {

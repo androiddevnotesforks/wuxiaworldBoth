@@ -1,6 +1,5 @@
 import { AppProps } from "next/app";
-import { useHydrate } from "../components/Store/Store";
-import { StoreProvider } from "../components/Store/StoreProvider";
+import { Provider, useCreateStore } from "../components/Store/Store";
 import React, { useEffect, useState } from "react";
 import { Hydrate, QueryClient, QueryClientProvider } from "react-query";
 import Navbar from "../components/Navbar/Navbar";
@@ -10,21 +9,12 @@ import { useRouter } from "next/router";
 import Loading from "../components/common/Loading";
 import ReactGA from "react-ga4";
 // import { SessionProvider } from "next-auth/react";
-import { GetServerSidePropsContext } from "next";
-import { getCookie, setCookies } from "cookies-next";
 
 const App = (props: AppProps) => {
-  const {
-    Component,
-    pageProps: { darkMode, accessToken, ...pageProps },
-  } = props;
-  const store = useHydrate({
-    darkMode,
-    accessToken,
-    ...pageProps.initialZustandState,
-  });
+  const { Component, pageProps } = props;
+  const createStore = useCreateStore(pageProps.initialZustandState);
+
   const [queryClient] = React.useState(() => new QueryClient());
-  const getLayout = Component.getLayout || ((page) => page);
   const router = useRouter();
 
   const ONE_DAY_SECONDS = 60 * 60 * 24;
@@ -73,7 +63,7 @@ const App = (props: AppProps) => {
 
   return (
     // <SessionProvider session={session}>
-    <StoreProvider store={store}>
+    <Provider createStore={createStore}>
       <QueryClientProvider client={queryClient}>
         <Hydrate state={pageProps.dehydratedState}>
           <Background>
@@ -88,13 +78,8 @@ const App = (props: AppProps) => {
           </Background>
         </Hydrate>
       </QueryClientProvider>
-    </StoreProvider>
+    </Provider>
     // </SessionProvider>
   );
 };
-App.getInitialProps = ({ ctx }: { ctx: GetServerSidePropsContext }) => ({
-  darkMode: getCookie("darkMode", ctx) || true,
-  accessToken: getCookie("accessToken", ctx) || null,
-});
-
 export default App;

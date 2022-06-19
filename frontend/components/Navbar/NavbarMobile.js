@@ -1,16 +1,14 @@
-import { useState, useEffect, Suspense, lazy } from "react";
-import { Burger, Progress } from "@mantine/core";
+import { useState } from "react";
+import { Burger } from "@mantine/core";
 import { Container } from "@mantine/core";
 import { Group } from "@mantine/core";
 import { Title } from "@mantine/core";
 import { ActionIcon } from "@mantine/core";
 import { Divider, Paper } from "@mantine/core";
 import { routes } from "../utils/Routes";
-import ReactGA from "react-ga";
-import { useStore } from "../Store/StoreProvider";
+import { useStore } from "../Store/Store";
 import LinkText from "../common/LinkText";
 import Sidebar from "./Sidebar.js";
-import { useNProgress } from "@tanem/react-nprogress";
 
 // const Sidebar = lazy(() => import("./Sidebar.js"));
 
@@ -19,10 +17,9 @@ const NavbarMobile = () => {
   const siteName = useStore((state) => state.siteName);
   const darkMode = useStore((state) => state.darkMode);
   const changeSettings = useStore((state) => state.changeSettings);
-  const { animationDuration, isFinished, progress } = useNProgress({
-    isAnimating: true,
-  });
-
+  const toggleDarkMode = () => {
+    changeSettings({ darkMode: !darkMode });
+  };
   return (
     <>
       <Paper
@@ -49,11 +46,7 @@ const NavbarMobile = () => {
               <ActionIcon
                 variant="outline"
                 color={darkMode ? "yellow" : "blue"}
-                onClick={() => {
-                  changeSettings({
-                    darkMode: !darkMode,
-                  });
-                }}
+                onClick={toggleDarkMode}
                 size="md"
                 loaderProps={{
                   ariaLabel: darkMode ? "dark-mode" : "light-mode",

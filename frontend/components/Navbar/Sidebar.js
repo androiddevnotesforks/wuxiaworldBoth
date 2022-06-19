@@ -2,15 +2,13 @@ import SearchIcon from "@mui/icons-material/Search";
 import LoginIcon from "@mui/icons-material/Login";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { Button, Drawer, Accordion, Title, Group } from "@mantine/core";
-// import { useHistory } from "react-router-dom";
 import { useRouter } from "next/router";
 import { routes } from "../utils/Routes";
 import LinkText from "../common/LinkText";
-import { useStore } from "../Store/StoreProvider";
+import { useStore } from "../Store/Store";
 import { useEffect } from "react";
 
 const Sidebar = ({ opened, setOpened }) => {
-  // const history = useHistory();
   const accessToken = useStore((state) => state.accessToken);
   const logOut = useStore((state) => state.logOut);
   const router = useRouter();
@@ -116,9 +114,9 @@ const Sidebar = ({ opened, setOpened }) => {
           Search
         </Button>
       </LinkText>
-      {/* {!accessToken ? (
+      {!accessToken ? (
         <Button
-          onClick={() => history.push(`${routes.login}`)}
+          onClick={() => router.push(`${routes.login}`)}
           leftIcon={<LoginIcon />}
           fullWidth
           size="md"
@@ -134,7 +132,7 @@ const Sidebar = ({ opened, setOpened }) => {
         >
           Log Out
         </Button>
-      )} */}
+      )}
     </Drawer>
   );
 };

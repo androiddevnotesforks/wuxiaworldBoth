@@ -1,7 +1,7 @@
 import { Button, Container, Spoiler, Text } from "@mantine/core";
 import { Skeleton } from "@mantine/core";
 
-const Description = ({ text, height, fontSize }) => {
+const Description = ({ text, height, fontSize = null }) => {
   return (
     <Container size="md">
       <Spoiler

@@ -1,12 +1,13 @@
-import { Container } from "@mantine/core";
+import { Center, Container, Title } from "@mantine/core";
 import { dehydrate, QueryClient } from "react-query";
 import Sections from "../components/common/Sections";
 import { novelsFetch, useNovels } from "../components/hooks/useNovels";
 import dynamic from "next/dynamic";
 import BackgroundLoading from "../components/Background/BackgroundLoading";
 import Seo from "../components/common/Seo";
-import { useStore } from "../components/Store/StoreProvider";
+import { initializeStore, useStore } from "../components/Store/Store";
 import TopBox from "../components/common/TopBox";
+import { useEffect } from "react";
 
 const RecentlyUpdated = dynamic(
   () => import("../components/common/RecentlyUpdated.js"),
@@ -18,10 +19,12 @@ export async function getStaticProps() {
   await queryClient.prefetchQuery(["home_view"], novelsFetch, {
     staleTime: Infinity,
   });
+  const zustandStore = initializeStore();
 
   return {
     props: {
       dehydratedState: dehydrate(queryClient),
+      initialZustandState: JSON.parse(JSON.stringify(zustandStore.getState())),
     },
     revalidate: 60 * 60 * 3,
   };
@@ -31,7 +34,13 @@ export default function HomePage({ dehydratedState }) {
   const { data } = useNovels();
   const siteName = useStore((state) => state.siteName);
   const siteUrl = useStore((state) => state.siteUrl);
+  const axiosRun = useStore((state) => state.axiosRun);
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      axiosRun();
+    }
+  }, []);
   return (
     <>
       <Seo
@@ -53,6 +62,7 @@ export default function HomePage({ dehydratedState }) {
             key={category.slug}
           />
         ))}
+
         <RecentlyUpdated tag={null} category={null} />
       </Container>
     </>

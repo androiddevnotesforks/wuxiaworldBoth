@@ -11,7 +11,7 @@ export const routes = {
   signup: "/user/signup/",
   readingList: "/user/reading-list/",
   search: "/search/",
-  profile: "/user/profile/",
+  profile: "/profile/",
   profileView: "/user/profile/view",
   bookmark: "/user/profile/bookmark",
   settings: "/user/profile/settings",

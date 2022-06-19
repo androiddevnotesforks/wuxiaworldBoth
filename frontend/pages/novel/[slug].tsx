@@ -8,9 +8,11 @@ import { Container } from "@mantine/core";
 import useInView from "react-cool-inview";
 import Seo from "../../components/common/Seo.js";
 import { routes } from "../../components/utils/Routes";
-import { useStore } from "../../components/Store/StoreProvider";
 // import { getSession, useSession } from "next-auth/react";
 import axios from "axios";
+import nookies from "nookies";
+import { useEffect } from "react";
+import { initializeStore, useStore } from "../../components/Store/Store";
 import { apiHome } from "../../components/utils/siteName";
 
 const DisqusComments = dynamic(
@@ -27,7 +29,6 @@ const Recommendations = dynamic(
 );
 
 const SSR = typeof window === "undefined";
-
 export async function getStaticPaths() {
   const headers = {
     Authorization: `Token ${process.env.ADMIN_TOKEN}`,
@@ -38,7 +39,7 @@ export async function getStaticPaths() {
       headers,
     }
   );
-  const urls = response.data.slice(0, 10).map((item) => {
+  const urls = response.data.slice(0, 100).map((item) => {
     const value = { params: { slug: item.slug } };
     return value;
   });
@@ -48,69 +49,29 @@ export async function getStaticPaths() {
   };
 }
 
-export async function getStaticProps(context) {
-  const { slug } = context.params;
-  const queryClient = new QueryClient();
+export async function getStaticProps(ctx) {
+  const { slug } = ctx.params;
 
+  const queryClient = new QueryClient();
   await queryClient.prefetchQuery(["novelInfo", slug], novelInfoFetch, {
     staleTime: Infinity,
   });
-  const recommendation_fetch = ({ queryKey }) => {
-    const [_, id] = queryKey;
-    const link = `${apiHome}/recommendations/${id}`;
-    return axios
-      .get(link)
-      .then((response) => {
-        const res = response.data;
-        return res;
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  };
-  await queryClient.prefetchQuery(
-    ["get_recommendations", slug],
-    recommendation_fetch,
-    {
-      staleTime: Infinity,
-    }
-  );
+  const zustandStore = initializeStore();
+
   return {
     props: {
       dehydratedState: dehydrate(queryClient),
+      initialZustandState: JSON.parse(JSON.stringify(zustandStore.getState())),
     },
-    revalidate: 60 * 60 * 48,
   };
 }
-
-// export async function getServerSideProps(context) {
-//   // const { req } = context;
-//   const { slug } = context.params;
-
-//   // const session = await getSession({ req });
-//   // if (session) {
-//   //   axios.defaults.headers.common[
-//   //     "Authorization"
-//   //   ] = `Token ${session.user.accessToken}`;
-//   // }
-
-//   const queryClient = new QueryClient();
-//   await queryClient.prefetchQuery(["novelInfo", slug], novelInfoFetch, {
-//     staleTime: Infinity,
-//   });
-//   // console.log(dehydrate(queryClient));
-//   return {
-//     props: {
-//       dehydratedState: dehydrate(queryClient),
-//     },
-//   };
-// }
 
 const NovelDetail = (props) => {
   const router = useRouter();
   const { slug } = router.query;
   const { data: novelData } = useNovel(slug);
-  const siteName = useStore((state) => state.siteName);
+  const profile = useStore((state) => state.profile);
+  const axiosRun = useStore((state) => state.axiosRun);
 
   const { observe, unobserve, inView, scrollDirection, entry } = useInView({
     threshold: 0,
@@ -132,18 +93,19 @@ const NovelDetail = (props) => {
       <Seo
         url={`${routes.novel}${novelData?.slug}`}
         image={`${novelData?.image}`}
-        title={`${novelData?.name} - Read Wuxia Novels at ${siteName}`}
-        description={`You are reading ${novelData?.name} online for free on ${siteName}. Read ${novelData?.name} and more Wuxia, Xuanhuan, Korean and Japanese novels at ${siteName}. Continue reading . ${novelData?.description}`}
+        title={`${novelData?.name} - Read Wuxia Novels at ${process.env.NEXT_PUBLIC_SITE_NAME}`}
+        description={`You are reading ${novelData?.name} online for free on ${process.env.NEXT_PUBLIC_SITE_NAME}. Read ${novelData?.name} and more Wuxia, Xuanhuan, Korean and Japanese novels at ${process.env.NEXT_PUBLIC_SITE_NAME}. Continue reading . ${novelData?.description}`}
         loading={false}
       />
-      <MobileDetail
-        novelData={novelData}
-        // bookmarked={bookmarkData?.created_at && !bookmarkError}
-        // addNovelBookmark={addNovelBookmark}
-        // removeNovelBookmark={removeNovelBookmark}
-        // bookmarkData={bookmarkData}
-        id={slug}
-      />
+      {profile?.user?.is_staff && (
+        <Container>
+          <div>
+            <a href={`${routes.novel}${novelData?.slug}/edit`}>Edit</a>
+          </div>
+        </Container>
+      )}
+
+      <MobileDetail novelData={novelData} id={slug} />
       <Container
         sx={{ maxWidth: "700px", position: "relative" }}
         ref={recommendationObserve}

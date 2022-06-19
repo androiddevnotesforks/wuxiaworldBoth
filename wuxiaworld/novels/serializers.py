@@ -116,7 +116,7 @@ class LoggedNovelInfoSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ("id","first_name", 'last_name', 'username', 'email')
+        fields = ("id","first_name", 'last_name', 'username', 'email', "is_staff")
 
 class SettingsSerializer(serializers.ModelSerializer):
     class Meta:

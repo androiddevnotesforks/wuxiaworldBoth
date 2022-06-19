@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useMediaQuery, useWindowScroll } from "@mantine/hooks";
 import { Paper } from "@mantine/core";
 import NavbarMobile from "./NavbarMobile.js";
-import { useStore } from "../Store/StoreProvider.js";
+import { useStore } from "../Store/Store";
 
 const Navbar = () => {
   const phone = useMediaQuery("(max-width: 1024px)");

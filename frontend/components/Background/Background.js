@@ -1,16 +1,28 @@
 import { Paper } from "@mantine/core";
-import { useStore } from "../Store/StoreProvider";
 import { MantineProvider, NormalizeCSS, GlobalStyles } from "@mantine/core";
 import { NotificationsProvider } from "@mantine/notifications";
 import { useEffect } from "react";
+import { parseCookies, setCookie } from "nookies";
+import { useCreateStore, useStore } from "../Store/Store";
+import { useProfile } from "../hooks/useProfile";
 
 const Background = (props) => {
   const darkMode = useStore((state) => state.darkMode);
-  const loadFromLocalStorage = useStore((state) => state.loadFromLocalStorage);
+  const accessToken = parseCookies().accessToken;
+  const axiosRun = useStore((state) => state.axiosRun);
+  const profileUpdate = useStore((state) => state.profileUpdate);
+  const { data } = useProfile(accessToken);
 
   useEffect(() => {
-    loadFromLocalStorage();
+    if (typeof window !== "undefined") {
+      axiosRun();
+    }
   }, []);
+  useEffect(() => {
+    if (data) {
+      profileUpdate(data);
+    }
+  }, [data]);
   return (
     <MantineProvider
       theme={{

@@ -1,9 +1,9 @@
 import { ActionIcon, Group, Menu, MenuItem, Title } from "@mantine/core";
 import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
-import { useHistory } from "react-router";
+import { useRouter } from "next/router";
 import React, { useState } from "react";
 const MenuDropdown = ({ title, items }) => {
-  const history = useHistory();
+  const router = useRouter();
   const [openPop, setOpenPop] = useState(false);
 
   return (
@@ -37,7 +37,7 @@ const MenuDropdown = ({ title, items }) => {
               </a>
             </MenuItem>
           ) : (
-            <MenuItem onClick={() => history.push(item.link)}>
+            <MenuItem onClick={() => router.push(item.link)}>
               {item.name}
             </MenuItem>
           )
