@@ -21,8 +21,8 @@ import { useStore } from "../../../components/Store/Store";
 
 // const clientId =
 //   "778632375770-0ndavp1ba39q5qkj20bukf5ankbjs5gn.apps.googleusercontent.com";
-const clientId =
-  "553916859630-3ukm9ntg00ftpbqciu77h4ed41nh0vgi.apps.googleusercontent.com";
+// const clientId =
+//   "553916859630-3ukm9ntg00ftpbqciu77h4ed41nh0vgi.apps.googleusercontent.com";
 
 const Login = () => {
   const token = useStore((state) => state.accessToken);
@@ -30,6 +30,9 @@ const Login = () => {
   const setUserInfo = useStore((state) => state.setUserInfo);
   const localhost = useStore((state) => state.local_host);
   const fbAppId = localhost ? "586157695796467" : "298089388720155";
+  const clientId = localhost
+    ? "553916859630-3ukm9ntg00ftpbqciu77h4ed41nh0vgi.apps.googleusercontent.com"
+    : "778632375770-0ndavp1ba39q5qkj20bukf5ankbjs5gn.apps.googleusercontent.com";
   const [usernameValue, setUsernameValue] = useState("");
   const [passwordValue, setPasswordValue] = useState("");
   const router = useRouter();
