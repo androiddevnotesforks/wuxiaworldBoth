@@ -19,10 +19,10 @@ import { routes } from "../../../components/utils/Routes";
 import { apiUrl } from "../../../components/utils/siteName";
 import { useStore } from "../../../components/Store/Store";
 
-// const clientId =
-//   "778632375770-0ndavp1ba39q5qkj20bukf5ankbjs5gn.apps.googleusercontent.com";
-// const clientId =
-//   "553916859630-3ukm9ntg00ftpbqciu77h4ed41nh0vgi.apps.googleusercontent.com";
+// const fbAppId = local_host ? "586157695796467" : "298089388720155";
+//   const clientId = local_host
+//     ? "553916859630-3ukm9ntg00ftpbqciu77h4ed41nh0vgi.apps.googleusercontent.com"
+//     : "778632375770-0ndavp1ba39q5qkj20bukf5ankbjs5gn.apps.googleusercontent.com";
 
 const Login = () => {
   const token = useStore((state) => state.accessToken);
@@ -30,10 +30,9 @@ const Login = () => {
   const setUserInfo = useStore((state) => state.setUserInfo);
   const local_host = process.env.NEXT_PUBLIC_LOCAL;
 
-  const fbAppId = local_host ? "586157695796467" : "298089388720155";
-  const clientId = local_host
-    ? "553916859630-3ukm9ntg00ftpbqciu77h4ed41nh0vgi.apps.googleusercontent.com"
-    : "778632375770-0ndavp1ba39q5qkj20bukf5ankbjs5gn.apps.googleusercontent.com";
+  const fbAppId = "298089388720155";
+  const clientId =
+    "778632375770-0ndavp1ba39q5qkj20bukf5ankbjs5gn.apps.googleusercontent.com";
   const [usernameValue, setUsernameValue] = useState("");
   const [passwordValue, setPasswordValue] = useState("");
   const router = useRouter();
