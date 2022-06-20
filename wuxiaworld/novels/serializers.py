@@ -240,9 +240,16 @@ class AnnouncementSerializer(serializers.ModelSerializer):
 
 class ReportSerializer(serializers.ModelSerializer):
     checked = serializers.CharField(read_only = True)
+    reported_by = serializers.CharField( read_only = True)
     class Meta:
         model = Report
         fields = "__all__"
+    
+    def create(self, validated_data):
+        auth = self.context['request'].user.is_authenticated
+        if auth:
+            validated_data['reported_by'] = self.context['request'].user.profile_owner
+        return super().create(validated_data)
 
 class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
