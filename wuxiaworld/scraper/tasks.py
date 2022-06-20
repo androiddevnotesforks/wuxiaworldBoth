@@ -14,6 +14,8 @@ import re
 from wuxiaworld.scraper.utils.create_scraper import create_scraper
 import concurrent.futures
 import urllib3
+from datetime import date, timedelta
+
 
 def stop_repeat_scrape(novelObject) -> None:
     novelObject.repeatScrape = False
@@ -120,9 +122,7 @@ def continous_scrape(slug):
     
     return resultData
 
-@shared_task
-def filter_blacklist_patterns():
-    Chapter = apps.get_model('novels', 'Chapter')
+def filter_patterns(chapters):
     BlacklistPattern = apps.get_model('novels', 'BlacklistPattern')
 
     listOfPatterns = BlacklistPattern.objects.filter(enabled = True, replacement = "").values_list(
@@ -132,21 +132,18 @@ def filter_blacklist_patterns():
     pattern = Value(fr'{patternText}')
     replacement = Value(r'') 
     flags = Value('g')
-    Chapter.objects.update(
-        text=Func(
+    chapters.update(text=Func(
             models.F('text'),
             pattern, replacement, flags,
             function='REGEXP_REPLACE',
             output_field=models.TextField(),
-        )
-    )
-
+        ))
     patternsWithReplacement = BlacklistPattern.objects.filter(enabled = True).exclude(replacement = "")
         
     for pat in patternsWithReplacement:
         pattern = Value(fr'{pat.pattern}')
         replacement = Value(fr"{pat.replacement}")
-        Chapter.objects.update(
+        chapters.update(
         text= Func(
             models.F('text'),
             pattern, replacement, flags,
@@ -154,3 +151,18 @@ def filter_blacklist_patterns():
             output_field=models.TextField(),
         )
         )
+
+@shared_task
+def filter_blacklist_patterns():
+    Chapter = apps.get_model('novels', 'Chapter')
+    some_day_last_week = date.today() - timedelta(days=7)
+    chapters = Chapter.objects.filter(created_at__gte=some_day_last_week)
+    filter_patterns(chapters)
+    return "Done"
+
+@shared_task
+def filter_blacklist_patterns_all_chapters():
+    Chapter = apps.get_model('novels', 'Chapter')
+    chapters = Chapter.objects.all()
+    filter_patterns(chapters)
+    return "Done"
