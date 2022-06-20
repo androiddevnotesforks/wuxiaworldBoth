@@ -26,6 +26,7 @@ else:
 urlpatterns += [
     # API base url
     path("robots.txt", return_robots),
+    path("robots.txt/", return_robots),
     path("api/", include("wuxiaworld.novels.api_router")),
     # DRF auth token
     path("upload/novels", addNovels),
