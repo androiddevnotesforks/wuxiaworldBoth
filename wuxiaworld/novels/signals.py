@@ -3,21 +3,21 @@ from django.dispatch import receiver
 from django.apps import apps
 from django.utils.text import slugify
 from django_celery_beat.models import IntervalSchedule, PeriodicTask
-from django.contrib.auth.models import User
-from allauth.socialaccount.models import SocialAccount
 import json
 from wuxiaworld.scraper.tasks import continous_scrape
 from django.utils.timezone import now
 from django.db.models import Avg
-from django.db.models.functions import Round
 from django.core.cache import cache
-
+from django.contrib.auth.models import User
+from allauth.socialaccount.models import SocialAccount
 #If Novel has a scrape link, start the initial scrape of the novel and create
 # a periodic task to scrape every x interval.
+from allauth.account.signals import user_signed_up
+
 def create_periodic_task(instance):
     if instance.repeatScrape:
         schedule, _ = IntervalSchedule.objects.get_or_create(
-                    every = 3,
+                    every = 12,
                     period = IntervalSchedule.HOURS
                     )
         task, _ = PeriodicTask.objects.get_or_create(
@@ -28,7 +28,7 @@ def create_periodic_task(instance):
         )
 
 @receiver(post_delete, sender="novels.Profile")
-def create_profile(sender, instance, created, **kwargs):
+def delete_settings(sender, instance, **kwargs):
     settings = instance.settings
     if settings:
         settings.delete()
@@ -50,7 +50,7 @@ def update_novel_last_chapter(sender, instance, created, **kwargs):
         novel_obj.save()
 
 @receiver(post_save, sender="novels.Review")
-def update_novel_last_chapter(sender, instance, created, **kwargs):
+def update_novel_review_rating(sender, instance, created, **kwargs):
     Review = apps.get_model("novels", "Review")
     novel_obj = instance.novel
 
@@ -82,17 +82,24 @@ def init_scrape(sender,instance,**kwargs):
     if kwargs['created']:
         create_periodic_task(instance)
 
-@receiver(post_save, sender=SocialAccount)
-def create_profile(sender, instance, created, **kwargs):
-    if created:
-        Profile = apps.get_model('novels','Profile')
-        Settings = apps.get_model('novels','Settings')
-        newSettings = Settings.objects.create()
-        profile = Profile.objects.create(user=instance.user, imageUrl = instance.get_avatar_url(),
-                            settings = newSettings)
+@receiver(user_signed_up)
+def create_profile(sociallogin, user, **kwargs):
 
+    if sociallogin.account.provider == 'facebook':
+        user_data = user.socialaccount_set.filter(provider='facebook').first()
+        imageUrl = user_data.get_avatar_url()          
+
+    if sociallogin.account.provider == 'google':
+        user_data = user.socialaccount_set.filter(provider='google').first()
+        imageUrl = user_data.get_avatar_url()          
+
+    Profile = apps.get_model('novels','Profile')
+    Settings = apps.get_model('novels','Settings')
+    newSettings = Settings.objects.create()
+    profile = Profile.objects.create(user=user, imageUrl = imageUrl,
+                        settings = newSettings)
 
 @receiver(post_save, sender="novels.Settings")
-def create_profile(sender, instance, created, **kwargs):
+def settings_cache(sender, instance, created, **kwargs):
     if not created and instance.profile:
         cache.set(f"profile_{instance.profile.user.id}", instance.updated_at)
