@@ -19,7 +19,6 @@ const getDefaultInitialState = () => ({
   darkMode: true,
   accessToken: parseCookies().accessToken,
   profile: {},
-  local_host: process.env.NEXT_PUBLIC_LOCAL,
 });
 const zustandContext: any = createContext();
 export const Provider = zustandContext.Provider;

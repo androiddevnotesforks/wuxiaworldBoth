@@ -28,9 +28,10 @@ const Login = () => {
   const token = useStore((state) => state.accessToken);
   const logIn = useStore((state) => state.setAccessToken);
   const setUserInfo = useStore((state) => state.setUserInfo);
-  const localhost = useStore((state) => state.local_host);
-  const fbAppId = localhost ? "586157695796467" : "298089388720155";
-  const clientId = localhost
+  const local_host = process.env.NEXT_PUBLIC_LOCAL;
+
+  const fbAppId = local_host ? "586157695796467" : "298089388720155";
+  const clientId = local_host
     ? "553916859630-3ukm9ntg00ftpbqciu77h4ed41nh0vgi.apps.googleusercontent.com"
     : "778632375770-0ndavp1ba39q5qkj20bukf5ankbjs5gn.apps.googleusercontent.com";
   const [usernameValue, setUsernameValue] = useState("");
