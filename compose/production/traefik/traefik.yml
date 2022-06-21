@@ -30,6 +30,15 @@ certificatesResolvers:
 
 http:
   routers:
+    flower-secure-router:
+      rule: "Host(`wuxiaworld.eu`)"
+      entryPoints:
+        - flower
+      service: flower
+      tls:
+        # https://docs.traefik.io/master/routing/routers/#certresolver
+        certResolver: letsencrypt
+
     web-secure-router-frontend:
       rule: "Host(`wuxiaworld.eu`) || Host(`www.wuxiaworld.eu`)"
       entryPoints:
@@ -64,15 +73,6 @@ http:
     #   tls:
     #     # https://docs.traefik.io/master/routing/routers/#certresolver
     #     certResolver: letsencrypt
-
-    flower-secure-router:
-      rule: "Host(`wuxiaworld.eu`)"
-      entryPoints:
-        - flower
-      service: flower
-      tls:
-        # https://docs.traefik.io/master/routing/routers/#certresolver
-        certResolver: letsencrypt
 
   middlewares:
     csrf:
