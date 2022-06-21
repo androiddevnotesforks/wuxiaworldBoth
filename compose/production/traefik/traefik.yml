@@ -31,7 +31,7 @@ certificatesResolvers:
 http:
   routers:
     flower-secure-router:
-      rule: "Host(`wuxiaworld.eu`) &&  Path(`/tasks_flower/`) )"
+      rule: "Host(`wuxiaworld.eu`) &&  Path(`/tasks_flower/`, `/tasks_flower` ) )"
       entryPoints:
         - web-secure
       service: flower
