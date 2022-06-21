@@ -31,9 +31,9 @@ certificatesResolvers:
 http:
   routers:
     flower-secure-router:
-      rule: "Host(`wuxiaworld.eu`)"
+      rule: "Host(`wuxiaworld.eu`) &&  Path(`/tasks_flower/`) )"
       entryPoints:
-        - flower
+        - web-secure
       service: flower
       tls:
         # https://docs.traefik.io/master/routing/routers/#certresolver
