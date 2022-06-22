@@ -12,7 +12,7 @@ class BookmarkSerializerView(viewsets.ModelViewSet):
     pagination_class = None
     permission_classes = [IsAuthenticated]
     def get_queryset(self):
-        if self.action in ["list", "create", "retreive", "delete"] and \
+        if self.action in ["list", "create", "retreive", "destroy"] and \
             self.request.user.is_authenticated:
             return self.queryset.filter(profile__user=self.request.user)
         return Bookmark.objects.none()
