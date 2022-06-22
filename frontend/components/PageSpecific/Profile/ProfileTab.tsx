@@ -1,16 +1,13 @@
 import { Card, Container, Title, Text, Avatar, Center } from "@mantine/core";
 import { useEffect } from "react";
 import ReactGA from "react-ga4";
+import { useProfile } from "../../hooks/useProfile";
 import { useStore } from "../../Store/Store";
 import TabBase from "./TabBase";
 
 const ProfileTab = () => {
-  const accessToken = useStore((state) => state.accessToken);
-  const userInfo = useStore((state) => state.userInfo);
-  const setUserInfo = useStore((state) => state.setUserInfo);
-
+  const { data: userInfo } = useProfile();
   useEffect(() => {
-    setUserInfo(accessToken);
     ReactGA.event({
       category: `Profile View`,
       action: `Profile Tab`,

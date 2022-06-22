@@ -7,19 +7,17 @@ import Sections from "../../../components/common/Sections";
 import Seo from "../../../components/common/Seo";
 import { routes } from "../../../components/utils/Routes";
 import { dehydrate, QueryClient } from "react-query";
-import { initializeStore, useStore } from "../../../components/Store/Store";
+import { useStore } from "../../../components/Store/Store";
 
 export async function getStaticProps() {
   const queryClient = new QueryClient();
   await queryClient.prefetchQuery(["tags_list"], tagsFetch, {
     staleTime: Infinity,
   });
-  const zustandStore = initializeStore();
 
   return {
     props: {
       dehydratedState: dehydrate(queryClient),
-      initialZustandState: JSON.parse(JSON.stringify(zustandStore.getState())),
     },
     revalidate: 60 * 60 * 48,
   };

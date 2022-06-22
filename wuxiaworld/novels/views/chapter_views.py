@@ -31,7 +31,7 @@ class SingleChapterSerializerView(viewsets.ModelViewSet):
                 novelParentName: 1}
             view = {}
         view.update(views)
-        cache.set("views", view, timeout=25)
+        cache.set("views", view, timeout=40)
         # novelViewParent = NovelViews.objects.get(viewsNovelName = novParent.slug)
         # novelViewParent.updateViews()
         if request.user.is_authenticated:
@@ -41,8 +41,9 @@ class SingleChapterSerializerView(viewsets.ModelViewSet):
                 if userSettings.autoBookMark:
                     userBookmarks = Bookmark.objects.filter(profile__user=self.request.user,
                         novel = novParent)
-                    if userBookmarks:
-                        bookmark = userBookmarks.first()
+                    bookmark = userBookmarks.first()
+                    
+                    if bookmark:
                         if not bookmark.chapter or bookmark.chapter.index < obj.index:
                             bookmark.chapter = obj
                             bookmark.save()

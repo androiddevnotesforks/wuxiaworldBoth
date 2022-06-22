@@ -3,10 +3,9 @@ import { parseCookies } from "nookies";
 import { useQuery } from "react-query";
 import { apiHome } from "../utils/siteName";
 
-const profileFetch = () => {
+const profileFetch = ({ queryKey }) => {
+  const [_, accessToken] = queryKey;
   const link = `${apiHome}/users/me/`;
-  const cookies = typeof window !== "undefined" ? parseCookies() : null;
-  const accessToken = cookies.accessToken;
   if (accessToken) {
     return axios
       .get(link, {
@@ -16,17 +15,22 @@ const profileFetch = () => {
       })
       .then((res) => res.data);
   }
+  return axios.get(link).then((response) => response.data);
 };
 
-const useProfile = (token) => {
+const useProfile = (options = {}) => {
+  const accessToken =
+    typeof window !== "undefined" ? parseCookies().accessToken : null;
+
   return useQuery(
-    ["getProfile"],
+    ["getProfile", accessToken],
 
     profileFetch,
     {
       refetchOnWindowFocus: false,
       retry: 0,
-      enabled: token ? true : false,
+      enabled: Boolean(accessToken),
+      ...options,
     }
   );
 };

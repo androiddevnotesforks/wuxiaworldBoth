@@ -3,10 +3,10 @@ import { parseCookies } from "nookies";
 import { useQuery } from "react-query";
 import { apiHome } from "../utils/siteName";
 
-const settingsFetch = () => {
+const settingsFetch = ({ queryKey }) => {
+  const [_, accessToken] = queryKey;
+
   const link = `${apiHome}/settings/me/`;
-  const cookies = typeof window !== "undefined" ? parseCookies() : null;
-  const accessToken = cookies.accessToken;
   if (accessToken) {
     return axios
       .get(link, {
@@ -16,17 +16,22 @@ const settingsFetch = () => {
       })
       .then((res) => res.data);
   }
+  return axios.get(link).then((response) => response.data);
 };
 
-const useSettings = (token) => {
+const useSettings = (options = {}) => {
+  const accessToken =
+    typeof window !== "undefined" ? parseCookies().accessToken : null;
+
   return useQuery(
-    ["getSettings"],
+    ["getSettings", accessToken],
 
     settingsFetch,
     {
       refetchOnWindowFocus: false,
       retry: 0,
-      enabled: token ? true : false,
+      enabled: Boolean(accessToken),
+      ...options,
     }
   );
 };

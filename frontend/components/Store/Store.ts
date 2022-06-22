@@ -16,7 +16,7 @@ const getDefaultInitialState = () => ({
   userInfo: null,
   settings: { darkMode: true },
   fontSize: 21,
-  darkMode: true,
+  darkMode: "dark",
   accessToken: parseCookies().accessToken,
   profile: {},
 });
@@ -43,28 +43,36 @@ export const initializeStore = (preloadedState = {}) => {
     axiosRun: () => {
       const cookies = parseCookies();
       const token = cookies?.accessToken;
+      const darkMode = cookies?.darkMode;
       if (token) {
         axios.defaults.headers.common["Authorization"] = `Token ${token}`;
       }
 
-      if (!typeof cookies?.darkMode == undefined) {
-        set(() => ({ darkMode: cookies.darkMode }));
+      if (darkMode !== "dark" && darkMode !== "light") {
+        setCookie(null, "darkMode", "dark");
       }
     },
     logOut: () => {
       set(() => ({ accessToken: null }));
-      destroyCookie(null, "accessToken");
+      destroyCookie(null, "accessToken", { path: "/" });
     },
     logIn: (accessToken) => {
       set(() => ({ accessToken }));
       setCookie(null, "accessToken", accessToken, { path: "/" });
     },
     profileUpdate: (profile) => {
-      set(() => ({ darkMode: profile?.settings?.darkMode }));
+      set(() => ({
+        darkMode: profile?.settings?.darkMode === false ? "light" : "dark",
+      }));
       set(() => ({ profile }));
       set(() => ({ fontSize: profile?.settings?.fontSize }));
       set(() => ({ settings: profile?.settings }));
-      setCookie(null, "darkMode", profile?.settings?.darkMode, { path: "/" });
+      setCookie(
+        null,
+        "darkMode",
+        profile?.settings?.darkMode === false ? "light" : "dark",
+        { path: "/" }
+      );
       setCookie(null, "fontSize", profile?.settings?.fontSize, { path: "/" });
     },
     setUserInfo: () => {
@@ -78,22 +86,20 @@ export const initializeStore = (preloadedState = {}) => {
           const resp = response.data;
           set((state) => ({ userInfo: resp }));
           set((state) => ({ settings: resp.settings }));
-          set((state) => ({ darkMode: resp.settings.darkMode }));
+          set((state) => ({
+            darkMode: resp.settings.darkMode === false ? "light" : "dark",
+          }));
           set((state) => ({ fontSize: resp.settings.fontSize }));
         })
         .catch((err) => {
           console.log(err);
-          destroyCookie(null, "accessToken");
+          destroyCookie(null, "accessToken", { path: "/" });
         });
     },
     changeSettings: (params) => {
       const loggedIn = get().accessToken;
-      const settings = get().settings;
 
       if (loggedIn) {
-        set((state) => ({ darkMode: params.darkMode }));
-        set((state) => ({ fontSize: params.fontSize }));
-        setCookie(null, "darkMode", params.darkMode, { path: "/" });
         axios
           .patch(`${apiUrl}/api/settings/me/`, params, {
             headers: { Authorization: `Token ${loggedIn}` },
@@ -102,7 +108,6 @@ export const initializeStore = (preloadedState = {}) => {
           .catch((err) => {
             console.log(err);
           });
-      } else {
       }
 
       if (params.darkMode != undefined) {

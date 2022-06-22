@@ -16,12 +16,10 @@ export async function getStaticProps() {
   await queryClient.prefetchQuery(["categories_list"], categoriesFetch, {
     staleTime: Infinity,
   });
-  const zustandStore = initializeStore();
 
   return {
     props: {
       dehydratedState: dehydrate(queryClient),
-      initialZustandState: JSON.parse(JSON.stringify(zustandStore.getState())),
     },
     revalidate: 60 * 60 * 24,
   };

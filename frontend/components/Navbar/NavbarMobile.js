@@ -18,7 +18,7 @@ const NavbarMobile = () => {
   const darkMode = useStore((state) => state.darkMode);
   const changeSettings = useStore((state) => state.changeSettings);
   const toggleDarkMode = () => {
-    changeSettings({ darkMode: !darkMode });
+    changeSettings({ darkMode: darkMode === "dark" ? "light" : "dark" });
   };
   return (
     <>
@@ -45,16 +45,16 @@ const NavbarMobile = () => {
             <Group>
               <ActionIcon
                 variant="outline"
-                color={darkMode ? "yellow" : "blue"}
+                color={darkMode === "dark" ? "yellow" : "blue"}
                 onClick={toggleDarkMode}
                 size="md"
                 loaderProps={{
-                  ariaLabel: darkMode ? "dark-mode" : "light-mode",
+                  ariaLabel: darkMode === "dark" ? "dark-mode" : "light-mode",
                 }}
-                aria-label={darkMode ? "dark-mode" : "light-mode"}
+                aria-label={darkMode === "dark" ? "dark-mode" : "light-mode"}
                 sx={{ fontSize: "18px" }}
               >
-                {darkMode ? "🌙" : "🌞"}
+                {darkMode === "dark" ? "🌙" : "🌞"}
               </ActionIcon>
               <Burger
                 opened={opened}

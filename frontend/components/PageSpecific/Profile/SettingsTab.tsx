@@ -10,13 +10,12 @@ import { parseCookies } from "nookies";
 
 const SettingsTab = () => {
   const accessToken = useStore((state) => state.accessToken);
-  const setUserInfo = useStore((state) => state.setUserInfo);
   const changeSettings = useStore((state) => state.changeSettings);
   const darkMode = useStore((state) => state.darkMode);
   const router = useRouter();
   const accessTokenCookie = parseCookies().accessToken;
 
-  const { data: settings, refetch } = useSettings(accessToken);
+  const { data: settings, refetch } = useSettings();
 
   useEffect(() => {
     ReactGA.event({
@@ -106,7 +105,7 @@ const SettingsTab = () => {
               <Button
                 onClick={() => {
                   changeSettings({
-                    darkMode: !darkMode,
+                    darkMode: darkMode === "dark" ? "light" : "dark",
                   });
                 }}
               >

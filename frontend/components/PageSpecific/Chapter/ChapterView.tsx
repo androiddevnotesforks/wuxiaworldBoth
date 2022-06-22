@@ -24,7 +24,6 @@ import ReactGA from "react-ga";
 import Buttons from "../../common/Buttons.js";
 import GoogleAdSmall from "../../common/GoogleAdSmall.js";
 // import GoogleAdMobile from "../../common/GoogleAdMobile.js";
-import { useRouter } from "next/router";
 import { useStore } from "../../Store/Store";
 import LinkText from "../../common/LinkText";
 import { routes } from "../../utils/Routes";
@@ -34,7 +33,6 @@ import ScrollUpButton from "./ScrollToTop.js";
 import { useNotifications } from "@mantine/notifications";
 
 const ChapterView = ({ chapterSlug }) => {
-  const router = useRouter();
   const queryClient = useQueryClient();
   const accessToken = useStore((state) => state.accessToken);
   const profile = useStore((state) => state.profile);
@@ -49,7 +47,7 @@ const ChapterView = ({ chapterSlug }) => {
   const [opened, setOpened] = useState(false);
 
   useEffect(() => {
-    if (data?.nextChap) {
+    if (accessToken && profile?.user?.is_staff && data?.nextChap) {
       queryClient.prefetchQuery(
         ["chapterFetch", `${data?.novelParent}-${data?.nextChap}`],
 

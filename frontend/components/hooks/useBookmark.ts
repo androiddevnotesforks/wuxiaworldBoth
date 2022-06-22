@@ -1,34 +1,65 @@
 import axios from "axios";
 import { parseCookies } from "nookies";
 import { useMutation, useQuery, useQueryClient } from "react-query";
-import { useStore } from "../Store/Store";
 import { apiHome } from "../utils/siteName";
 
 const bookmarkFetch = ({ queryKey }) => {
-  const [_, id] = queryKey;
+  const [_, id, accessToken] = queryKey;
   const link = `${apiHome}/bookmark/${id}/`;
-  const cookies = typeof window !== "undefined" ? parseCookies() : null;
-  if (cookies) {
-    const accessToken = cookies.accessToken;
-    if (accessToken) {
-      return axios.get(link, {
+  if (accessToken) {
+    return axios
+      .get(link, {
         headers: {
           Authorization: `Token ${accessToken}`,
         },
-      });
-    }
+      })
+      .then((response) => response.data);
   }
   return axios.get(link).then((response) => response.data);
 };
 
-const useBookmark = (id) => {
+const bookmarksFetch = ({ queryKey }) => {
+  const [_, accessToken] = queryKey;
+  const link = `${apiHome}/bookmark/`;
+  const token = accessToken;
+  if (token) {
+    return axios
+      .get(link, {
+        headers: {
+          Authorization: `Token ${accessToken}`,
+        },
+      })
+      .then((response) => response.data);
+  }
+  return axios.get(link).then((response) => response.data);
+};
+const useBookmark = ({ id }, options) => {
+  const accessToken =
+    typeof window !== "undefined" ? parseCookies().accessToken : null;
+
   return useQuery(
-    ["getBookmark", id],
+    ["getBookmark", id, accessToken],
 
     bookmarkFetch,
     {
       refetchOnWindowFocus: false,
       retry: 0,
+      ...options,
+    }
+  );
+};
+
+const useBookmarks = (options) => {
+  const accessToken =
+    typeof window !== "undefined" ? parseCookies().accessToken : null;
+  return useQuery(
+    ["getBookmarks", accessToken],
+
+    bookmarksFetch,
+    {
+      refetchOnWindowFocus: false,
+      retry: 0,
+      ...options,
     }
   );
 };
@@ -62,4 +93,10 @@ const useUpdateBookmark: any = () => {
   });
 };
 
-export { useBookmark, bookmarkFetch, useUpdateBookmark };
+export {
+  useBookmark,
+  useBookmarks,
+  bookmarksFetch,
+  bookmarkFetch,
+  useUpdateBookmark,
+};

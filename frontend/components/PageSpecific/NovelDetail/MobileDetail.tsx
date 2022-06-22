@@ -64,7 +64,7 @@ const MobileDetail = ({ novelData, id }) => {
                 <Title order={5} style={{ fontSize: 16 }}>
                   {novelData?.name}
                 </Title>
-                <Text size="sm">By {novelData?.author.name}</Text>
+                <Text size="sm">By {novelData?.author?.name}</Text>
               </Group>
               <BookmarkButton novelData={novelData} id={id} desktop={false} />
               <LinkText href={`${routes.chapter}${novelData?.first_chapter}`}>

@@ -14,32 +14,39 @@ import LinkText from "../../components/common/LinkText.js";
 import BackgroundLoading from "../../components/Background/BackgroundLoading.js";
 import NewNovelSection from "../../components/common/NewNovelSection.js";
 import dynamic from "next/dynamic.js";
+import nookies from "nookies";
+import { tagFetch, useTag } from "../../components/hooks/useTag";
 
 const RecentlyUpdated = dynamic(
   () => import("../../components/common/RecentlyUpdated.js"),
   { ssr: false, loading: () => <BackgroundLoading /> }
 );
-export async function getServerSideProps(context) {
-  const { slug } = context.params;
-  const { page, order_by } = context.query;
-  let pages;
-  const zustandStore = initializeStore();
 
-  const tagFetch = ({ queryKey }) => {
-    const [_, slug, page, order_by] = queryKey;
-    let link = `${apiHome}/novels/?tag_name=${slug}&limit=12&offset=${
-      page * 12
-    }`;
-    if (order_by) {
-      link = link + `&order=${order_by}`;
-    }
-    const results = axios.get(link).then((res) => {
-      const novels = res.data.results;
-      pages = Math.floor(res.data.count / 12);
-      return novels;
-    });
-    return results;
+export async function getStaticPaths(context) {
+  const headers = {
+    Authorization: `Token ${process.env.ADMIN_TOKEN}`,
   };
+  const response = await axios.get(`${apiHome}/tags/`, {
+    headers,
+  });
+  const urls = response.data.tags.slice(0, 3).map((item) => {
+    const value = {
+      params: { slug: item.slug },
+    };
+    return value;
+  });
+  return {
+    paths: [...urls],
+    fallback: "blocking", // false or 'blocking'
+  };
+}
+
+export async function getStaticProps(context) {
+  const { slug } = context.params;
+  const page = context?.query?.page || null;
+  const order_by = context?.query?.order_by || null;
+  let pages;
+
   const queryClient = new QueryClient();
   await queryClient.prefetchQuery(
     ["tagNovels", slug, page, order_by],
@@ -48,57 +55,38 @@ export async function getServerSideProps(context) {
       staleTime: Infinity,
     }
   );
+  const tag_data = (await queryClient.getQueryData([
+    "tagNovels",
+    slug,
+    page,
+    order_by,
+  ])) as any;
+  pages = Math.floor(tag_data?.count / 12);
+  let tagName = slug;
+  const tempcat = tag_data.results[0]?.tag.filter((tag) => {
+    if (tag.slug == slug) {
+      tagName = tag.name;
+    }
+  });
 
   return {
     props: {
       dehydratedState: JSON.parse(JSON.stringify(dehydrate(queryClient))),
       pages: pages,
-      initialZustandState: JSON.parse(JSON.stringify(zustandStore.getState())),
+      tagName,
     },
   };
 }
-const TagPage = ({ pages }) => {
+const TagPage = ({ pages, tagName }) => {
   const router = useRouter();
   const { slug, page, order_by } = router.query as any;
 
-  const [tagName, setTagName] = useState("");
   const [orderBy, setOrderBy] = useState(order_by || "");
 
   const siteName = useStore((state) => state.siteName);
   const siteUrl = useStore((state) => state.siteUrl);
 
-  const tagFetch = ({ queryKey }) => {
-    const [_, slug, page, orderBy] = queryKey;
-    let link = `${apiHome}/novels/?tag_name=${slug}&limit=12&offset=${
-      page || 0 * 12
-    }`;
-    if (orderBy) {
-      link = link + `&order=${orderBy}`;
-    }
-    const results = axios.get(link).then((res) => {
-      if (res?.data?.results?.length > 0) {
-        const tempcat = res.data.results[0]?.tag.filter((tag) => {
-          if (tag.slug == slug) {
-            setTagName(tag.name);
-          }
-        });
-      }
-      const novels = res.data.results;
-      return novels;
-    });
-    return results;
-  };
-
-  const { data, error, status, isLoading } = useQuery(
-    ["tagNovels", slug, page, orderBy],
-
-    tagFetch,
-    {
-      refetchOnWindowFocus: false,
-      staleTime: Infinity,
-      enabled: router.isReady,
-    }
-  );
+  const { data, error, status, isLoading } = useTag({ slug, page, orderBy });
 
   useEffect(() => {
     if (orderBy) {
@@ -170,26 +158,18 @@ const TagPage = ({ pages }) => {
   };
   return (
     <Background>
-      {tagName && (
-        <Seo
-          description={`Find more ${tagName} novels at ${siteName} for free on ${siteUrl}`}
-          url={`${siteUrl}${routes.tag}${slug}`}
-          title={`Tag ${tagName} - Read at ${siteName}`}
-          image={""}
-          loading={false}
-        />
-      )}
+      <Seo
+        description={`Find more ${tagName} novels at ${siteName} for free on ${siteUrl}`}
+        url={`${siteUrl}${routes.tag}${slug}`}
+        title={`Tag ${tagName} - Read at ${siteName}`}
+        image={""}
+        loading={false}
+      />
       <br />
       <OrderFilter orderBy={orderBy} setOrderBy={setOrderBy} />
       <br />
       <Container>
-        {data ? (
-          <NewNovelSection headingText={tagName} novelList={data} />
-        ) : (
-          <Container sx={{ position: "relative" }}>
-            <BackgroundLoading />
-          </Container>
-        )}
+        <NewNovelSection headingText={tagName} novelList={data?.results} />
       </Container>
       <br />
       <Center>

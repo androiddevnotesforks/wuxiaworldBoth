@@ -12,7 +12,7 @@ import { routes } from "../../components/utils/Routes";
 import axios from "axios";
 import nookies from "nookies";
 import { useEffect } from "react";
-import { initializeStore, useStore } from "../../components/Store/Store";
+import { useStore } from "../../components/Store/Store";
 import { apiHome } from "../../components/utils/siteName";
 
 const DisqusComments = dynamic(
@@ -39,7 +39,7 @@ export async function getStaticPaths() {
       headers,
     }
   );
-  const urls = response.data.slice(0, 100).map((item) => {
+  const urls = response.data.slice(0, 3).map((item) => {
     const value = { params: { slug: item.slug } };
     return value;
   });
@@ -56,12 +56,10 @@ export async function getStaticProps(ctx) {
   await queryClient.prefetchQuery(["novelInfo", slug], novelInfoFetch, {
     staleTime: Infinity,
   });
-  const zustandStore = initializeStore();
 
   return {
     props: {
       dehydratedState: dehydrate(queryClient),
-      initialZustandState: JSON.parse(JSON.stringify(zustandStore.getState())),
     },
   };
 }

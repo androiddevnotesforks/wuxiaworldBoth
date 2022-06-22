@@ -44,7 +44,7 @@ function ChapterBox({ novelParent, desktop }) {
     data: bookmarkData,
     isLoading: bookmarkLoading,
     error: bookmarkError,
-  } = useBookmark(novelParent);
+  } = useBookmark({ id: novelParent }, { enabled: Boolean(loggedIn) });
   useEffect(() => {
     if (bookmarkData?.data?.last_read?.index) {
       setLastRead(bookmarkData?.data?.last_read?.index);

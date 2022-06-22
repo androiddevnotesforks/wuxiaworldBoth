@@ -14,7 +14,7 @@ import LinkText from "../../components/common/LinkText.js";
 import BackgroundLoading from "../../components/Background/BackgroundLoading.js";
 import NewNovelSection from "../../components/common/NewNovelSection.js";
 import dynamic from "next/dynamic.js";
-
+import nookies from "nookies";
 const RecentlyUpdated = dynamic(
   () => import("../../components/common/RecentlyUpdated.js"),
   { ssr: false, loading: () => <BackgroundLoading /> }
@@ -23,7 +23,8 @@ export async function getServerSideProps(context) {
   const { slug } = context.params;
   const { page, order_by } = context.query;
   let pages;
-  const zustandStore = initializeStore();
+  const darkMode = nookies.get(context)?.darkMode;
+  const zustandStore = initializeStore({ darkMode: darkMode ?? "dark" });
 
   const categoryFetch = ({ queryKey }) => {
     const [_, slug, page, order_by] = queryKey;

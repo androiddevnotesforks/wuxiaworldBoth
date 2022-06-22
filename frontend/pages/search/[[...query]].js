@@ -42,8 +42,9 @@ const searchFetch = ({ queryKey }) => {
 export async function getServerSideProps(context) {
   const { query, page, order_by } = context.params;
   const queryClient = new QueryClient();
-  const zustandStore = initializeStore();
 
+  const darkMode = nookies.get(context)?.darkMode;
+  const zustandStore = initializeStore({ darkMode: darkMode ?? "dark" });
   let pages;
   const sFetch = ({ queryKey }) => {
     const [_, searchQuery, page, orderBy] = queryKey;

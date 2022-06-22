@@ -14,7 +14,12 @@ const BookmarkButton = ({ novelData, id, desktop }) => {
 
   const queryClient = useQueryClient();
 
-  const { data, isLoading, error } = useBookmark(id);
+  const { data, isLoading, error } = useBookmark(
+    {
+      id,
+    },
+    { enabled: Boolean(loggedIn) }
+  );
   const [bookmarked, setBookmarked] = useState(false);
 
   useEffect(() => {

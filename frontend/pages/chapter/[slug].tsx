@@ -14,7 +14,7 @@ import Background from "../../components/Background/Background";
 import { apiHome } from "../../components/utils/siteName";
 import axios from "axios";
 import { useEffect } from "react";
-
+import nookies from "nookies";
 // const ChapterView = dynamic(
 //   () => import("../../components/PageSpecific/Chapter/ChapterView"),
 //   {
@@ -29,46 +29,51 @@ const Recommendations = dynamic(
   }
 );
 
-export async function getStaticPaths() {
-  const headers = {
-    Authorization: `Token ${process.env.ADMIN_TOKEN}`,
-  };
+// export async function getStaticPaths() {
+//   const headers = {
+//     Authorization: `Token ${process.env.ADMIN_TOKEN}`,
+//   };
 
-  const fetched_chapters = await axios
-    .get(`${apiHome}/chapters/library-of-heavens-path/`, {})
-    .then((response) => {
-      const res = response.data;
-      return res;
-    })
-    .catch((error) => console.log(error));
+//   const fetched_chapters = await axios
+//     .get(`${apiHome}/chapters/library-of-heavens-path/`, { headers })
+//     .then((response) => {
+//       const res = response.data;
+//       return res;
+//     })
+//     .catch((error) => console.log(error));
 
-  const all_chaps = fetched_chapters.slice(0, 10);
+//   const all_chaps = fetched_chapters.slice(0, 10);
 
-  const paths_to_return = all_chaps.map((chap) => {
-    const value = { slug: chap.novSlugChapSlug };
-    return value;
+//   const paths_to_return = all_chaps.map((chap) => {
+//     const value = { slug: chap.novSlugChapSlug };
+//     return value;
+//   });
+
+//   const flattened_array = paths_to_return.map((chapter) => {
+//     const value = {
+//       params: { slug: chapter.slug },
+//     };
+//     return value;
+//   });
+
+//   return {
+//     paths: [...flattened_array],
+//     fallback: "blocking", // false or 'blocking'
+//   };
+// }
+export async function getServerSideProps(ctx) {
+  const { slug } = ctx.params;
+  const darkMode = nookies.get(ctx)?.darkMode;
+  const fontSize = nookies.get(ctx)?.fontSize;
+  const zustandStore = initializeStore({
+    darkMode: darkMode ?? "dark",
+    fontSize: fontSize ?? 21,
   });
 
-  const flattened_array = paths_to_return.map((chapter) => {
-    const value = {
-      params: { slug: chapter.slug },
-    };
-    return value;
-  });
-
-  return {
-    paths: [...flattened_array],
-    fallback: "blocking", // false or 'blocking'
-  };
-}
-export async function getStaticProps(context) {
-  const { slug } = context.params;
   const queryClient = new QueryClient();
   await queryClient.prefetchQuery(["chapterFetch", slug], chapterFetch, {
     staleTime: Infinity,
   });
-  let zustandStore;
-  zustandStore = initializeStore();
   return {
     props: {
       dehydratedState: dehydrate(queryClient),
