@@ -29,7 +29,7 @@ export async function getStaticPaths(context) {
   const response = await axios.get(`${apiHome}/tags/`, {
     headers,
   });
-  const urls = response.data.tags.slice(0, 3).map((item) => {
+  const urls = response.data.tags.slice(0, 10).map((item) => {
     const value = {
       params: { slug: item.slug },
     };

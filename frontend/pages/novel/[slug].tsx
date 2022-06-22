@@ -39,7 +39,7 @@ export async function getStaticPaths() {
       headers,
     }
   );
-  const urls = response.data.slice(0, 3).map((item) => {
+  const urls = response.data.slice(0, 500).map((item) => {
     const value = { params: { slug: item.slug } };
     return value;
   });
