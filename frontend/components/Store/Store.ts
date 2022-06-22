@@ -98,10 +98,18 @@ export const initializeStore = (preloadedState = {}) => {
     },
     changeSettings: (params) => {
       const loggedIn = get().accessToken;
-
+      const new_params = {
+        ...params,
+        darkMode:
+          params?.darkMode === "light"
+            ? false
+            : params?.darkMode === "dark"
+            ? true
+            : undefined,
+      };
       if (loggedIn) {
         axios
-          .patch(`${apiUrl}/api/settings/me/`, params, {
+          .patch(`${apiUrl}/api/settings/me/`, new_params, {
             headers: { Authorization: `Token ${loggedIn}` },
           })
           .then((response) => {})
