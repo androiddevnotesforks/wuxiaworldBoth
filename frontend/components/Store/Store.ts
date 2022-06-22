@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useLayoutEffect } from "react";
 import createContext from "zustand/context";
 import create from "zustand";

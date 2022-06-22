@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { FC, useEffect, useState } from "react";
 
 import {
   TextInput,
@@ -10,6 +10,7 @@ import {
   Text,
   Title,
   Pagination,
+  PaginationItemProps,
 } from "@mantine/core";
 import { useRouter } from "next/router";
 import Background from "../../components/Background/Background";
@@ -21,6 +22,7 @@ import NewNovelSection from "../../components/common/NewNovelSection";
 import { dehydrate, QueryClient, useQuery } from "react-query";
 import axios from "axios";
 import { apiHome } from "../../components/utils/siteName";
+import nookies from "nookies";
 import LinkText from "../../components/common/LinkText";
 
 const searchFetch = ({ queryKey }) => {
@@ -46,31 +48,21 @@ export async function getServerSideProps(context) {
   const darkMode = nookies.get(context)?.darkMode;
   const zustandStore = initializeStore({ darkMode: darkMode ?? "dark" });
   let pages;
-  const sFetch = ({ queryKey }) => {
-    const [_, searchQuery, page, orderBy] = queryKey;
-
-    let link = `${apiHome}/search/?limit=12&offset=${
-      page || 0 * 12
-    }&search=${searchQuery}`;
-    if (orderBy) {
-      link = link + `&order=${orderBy}`;
-    }
-    const results = axios.get(link).then((res) => {
-      const novels = res.data;
-      pages = Math.floor(res.data.count / 12);
-      return novels;
-    });
-    return results;
-  };
 
   await queryClient.prefetchQuery(
-    ["searchNovels", query || "", page || 0, order_by || ""],
-    sFetch,
+    ["searchNovels", query || "", page || 1, order_by || ""],
+    searchFetch,
     {
       staleTime: Infinity,
     }
   );
-
+  const page_data = (await queryClient.getQueryData([
+    "searchNovels",
+    query || "",
+    page || 1,
+    order_by || "",
+  ])) as any;
+  pages = Math.floor(page_data?.count / 12);
   return {
     props: {
       dehydratedState: dehydrate(queryClient),
@@ -91,36 +83,35 @@ const SearchPage = ({ pages }) => {
   const siteUrl = useStore((state) => state.siteUrl);
 
   const [ascending, setAscending] = useState(true);
+  const [pagesCount, setPagesCount] = useState(pages);
   const [orderBy, setOrderBy] = useState(order_by || "");
-  const { data, error, fetchNextPage, isFetchingNextPage, status, isLoading } =
-    useQuery(
-      ["searchNovels", query, page, orderBy],
+  const { data, error, status, isLoading } = useQuery(
+    ["searchNovels", query, page, orderBy],
 
-      searchFetch,
-      {
-        refetchOnWindowFocus: false,
-        staleTime: Infinity,
-        enabled: router.isReady,
-      }
-    );
+    searchFetch,
+    {
+      refetchOnWindowFocus: false,
+      staleTime: Infinity,
+      enabled: router.isReady,
+    }
+  );
 
   useEffect(() => {
     if (data) {
       setResultCount(data?.count || 0);
+      setPagesCount(Math.floor(data?.count / 12));
     }
   }, [data]);
 
-  const getPageButton = (props) => {
-    switch (props.active) {
-      case true:
-        return (
-          <LinkText
-            href={`${routes.search}${query}?page=${props.page}&order_by=${orderBy}`}
-          >
-            <Button variant="filled">{props.page}</Button>
-          </LinkText>
-        );
-      default:
+  const getPageButton: FC<PaginationItemProps> = (props) => {
+    if (props.active === true) {
+      return (
+        <LinkText
+          href={`${routes.search}${query}?page=${props.page}&order_by=${orderBy}`}
+        >
+          <Button variant="filled">{props.page}</Button>
+        </LinkText>
+      );
     }
     switch (props.page) {
       case "dots":
@@ -155,10 +146,10 @@ const SearchPage = ({ pages }) => {
           </LinkText>
         ) : null;
       case "last":
-        return page != Number(pages) ? (
+        return page != Number(pagesCount) ? (
           <LinkText
             href={`${routes.search}${query}?page=${Number(
-              pages
+              pagesCount
             )}&order_by=${orderBy}`}
           >
             <Button variant="default">{">>"}</Button>
@@ -236,7 +227,7 @@ const SearchPage = ({ pages }) => {
           <Center>
             <Container>
               <Pagination
-                total={pages}
+                total={pagesCount}
                 siblings={1}
                 page={parseInt(page)}
                 onChange={null}
