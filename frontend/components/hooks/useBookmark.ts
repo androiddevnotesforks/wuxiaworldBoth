@@ -64,7 +64,7 @@ const useBookmarks = (options) => {
   );
 };
 
-const updateBookmark = ({ operation, novelSlug, chapSlug }) => {
+const updateBookmark = ({ operation, novelSlug = null, chapSlug }) => {
   const params: any = chapSlug
     ? { novSlugChapSlug: chapSlug }
     : { novSlug: novelSlug };
@@ -87,7 +87,7 @@ const updateBookmark = ({ operation, novelSlug, chapSlug }) => {
   }
 };
 
-const useUpdateBookmark: any = () => {
+const useUpdateBookmark = () => {
   return useMutation(["updateBookmark"], updateBookmark, {
     retry: 1,
   });
@@ -99,4 +99,5 @@ export {
   bookmarksFetch,
   bookmarkFetch,
   useUpdateBookmark,
+  updateBookmark,
 };

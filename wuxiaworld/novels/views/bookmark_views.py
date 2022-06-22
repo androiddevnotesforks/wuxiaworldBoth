@@ -17,15 +17,16 @@ class BookmarkSerializerView(viewsets.ModelViewSet):
             return self.queryset.filter(profile__user=self.request.user)
         return Bookmark.objects.none()
     def retrieve(self,request,pk):
-        
-        bookmark = get_object_or_404(Bookmark,novel__slug =  pk) 
+        bookmark = self.get_queryset().filter(novel__slug =  pk).first()
         return Response(BookmarkSerializer(bookmark).data)
+
     def destroy(self,request, pk):
-        bookmark = get_object_or_404(Bookmark,novel__slug =  pk) 
+        bookmark = self.get_queryset().filter(novel__slug =  pk).first()
         profile = Profile.objects.get(user = request.user)
         profile.reading_lists.remove(bookmark)
         bookmark.delete()
         return Response({'message':'Bookmark removed'}, status=status.HTTP_200_OK)
+        
     def create(self, request):
         novSlugChapSlug = request.data.get("novSlugChapSlug")
         novSlug = request.data.get("novSlug")

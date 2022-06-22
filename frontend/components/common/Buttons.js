@@ -8,12 +8,16 @@ import { routes } from "../utils/Routes.js";
 import { apiHome } from "../utils/siteName.js";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
+import { useProfile } from "../hooks/useProfile";
+import { useStore } from "../Store/Store";
 
 const ChaptersModal = dynamic(() => import("./ChaptersModal.js"));
 
 const Buttons = ({ novelParent, nextChapter, prevChapter, chapterIndex }) => {
   const phone = useMediaQuery("(max-width: 768px)");
   const router = useRouter();
+  const accessToken = useStore((state) => state.accessToken);
+  const profile = useStore((state) => state.profile);
 
   const chaptersFetch = () => {
     return axios
@@ -70,7 +74,7 @@ const Buttons = ({ novelParent, nextChapter, prevChapter, chapterIndex }) => {
             ? `${routes.chapter}${novelParent}-${prevChapter}`
             : `${routes.novel}${novelParent}`
         }
-        refresh={true}
+        refresh={!profile?.user?.is_staff}
       >
         <Button id="previousChapter">
           {!phone ? (prevChapter ? "Previous Chapter" : "Novel Info") : "<"}
@@ -88,7 +92,7 @@ const Buttons = ({ novelParent, nextChapter, prevChapter, chapterIndex }) => {
             ? `${routes.chapter}${novelParent}-${nextChapter}`
             : `${routes.novel}${novelParent}`
         }
-        refresh={true}
+        refresh={!profile?.user?.is_staff}
       >
         <Button id="nextChapter" disabled={nextChapter ? false : true}>
           {!phone ? (nextChapter ? "Next Chapter" : "Novel Info") : ">"}

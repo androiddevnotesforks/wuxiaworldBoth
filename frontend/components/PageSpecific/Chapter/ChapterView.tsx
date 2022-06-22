@@ -31,11 +31,12 @@ import { useChapter, chapterFetch } from "../../hooks/useChapter";
 import GoogleAdText from "../../common/GoogleAdText";
 import ScrollUpButton from "./ScrollToTop.js";
 import { useNotifications } from "@mantine/notifications";
+import { useUpdateBookmark } from "../../hooks/useBookmark";
+import { useProfile } from "../../hooks/useProfile";
 
 const ChapterView = ({ chapterSlug }) => {
   const queryClient = useQueryClient();
   const accessToken = useStore((state) => state.accessToken);
-  const profile = useStore((state) => state.profile);
   const changeSettings = useStore((state) => state.changeSettings);
   const fontSize = useStore((state) => state.fontSize);
   const phone = useMediaQuery("(max-width: 1024px)");
@@ -45,7 +46,7 @@ const ChapterView = ({ chapterSlug }) => {
   const notifications = useNotifications();
   const [sentReport, setSentReport] = useState(false);
   const [opened, setOpened] = useState(false);
-
+  const { data: profile } = useProfile({ enabled: Boolean(accessToken) });
   useEffect(() => {
     if (accessToken && profile?.user?.is_staff && data?.nextChap) {
       queryClient.prefetchQuery(
@@ -63,6 +64,16 @@ const ChapterView = ({ chapterSlug }) => {
       });
     }
   }, [data]);
+  useEffect(() => {
+    if (accessToken && profile?.user?.is_staff && data?.nextChap) {
+      queryClient.prefetchQuery(
+        ["chapterFetch", `${data?.novelParent}-${data?.nextChap}`],
+
+        chapterFetch,
+        { staleTime: 100000 }
+      );
+    }
+  }, [profile]);
   const reportChapter = () => {
     setOpened(true);
   };
@@ -142,10 +153,10 @@ const ChapterView = ({ chapterSlug }) => {
       >
         {text}
       </Text>
-      {index % 17 == 0 && !phone && index != 0 && (
+      {index % 17 == 0 && !phone && index != 0 && !profile?.user?.is_staff && (
         <GoogleAdText pageParam={chapterSlug} adNum={index} />
       )}
-      {index % 15 == 0 && phone && index != 0 && (
+      {index % 15 == 0 && phone && index != 0 && !profile?.user?.is_staff && (
         <GoogleAdSmall
           pageParam={chapterSlug}
           adNum={index}

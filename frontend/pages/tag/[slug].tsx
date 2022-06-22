@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { dehydrate, QueryClient, useQuery } from "react-query";
 import { Button, Center, Container, Grid, Text } from "@mantine/core";
-import { initializeStore, useStore } from "../../components/Store/Store";
+import { useStore } from "../../components/Store/Store";
 import { apiHome } from "../../components/utils/siteName.js";
 import Seo from "../../components/common/Seo.js";
 import Background from "../../components/Background/Background.js";
@@ -14,7 +14,6 @@ import LinkText from "../../components/common/LinkText.js";
 import BackgroundLoading from "../../components/Background/BackgroundLoading.js";
 import NewNovelSection from "../../components/common/NewNovelSection.js";
 import dynamic from "next/dynamic.js";
-import nookies from "nookies";
 import { tagFetch, useTag } from "../../components/hooks/useTag";
 
 const RecentlyUpdated = dynamic(

@@ -135,12 +135,6 @@ const SettingsTab = () => {
               <Title order={4}>Ad Free View (coming soon) : </Title>
               <Button>Turn On</Button>
             </Group>
-            <Group>
-              <Title order={4}>
-                No Flicker Between Chapter Loads (coming soon) :{" "}
-              </Title>
-              <Button>Turn On</Button>
-            </Group>
           </Group>
           <br />
           <Title order={2} align="center">
@@ -166,6 +160,10 @@ const SettingsTab = () => {
               Low Data Use : In development right now. Basically if activated,
               all novels' images will switch to low quality images instead to
               not use too much data
+            </Title>
+            <Title order={3}>
+              Ad Free View : In development right now. Probably will be a paid
+              feature with a trial.
             </Title>
           </Group>
         </Card>

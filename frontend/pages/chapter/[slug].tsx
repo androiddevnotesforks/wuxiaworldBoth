@@ -15,6 +15,8 @@ import { apiHome } from "../../components/utils/siteName";
 import axios from "axios";
 import { useEffect } from "react";
 import nookies from "nookies";
+import { profileFetch } from "../../components/hooks/useProfile";
+import { updateBookmark } from "../../components/hooks/useBookmark";
 // const ChapterView = dynamic(
 //   () => import("../../components/PageSpecific/Chapter/ChapterView"),
 //   {
@@ -65,12 +67,30 @@ export async function getServerSideProps(ctx) {
   const { slug } = ctx.params;
   const darkMode = nookies.get(ctx)?.darkMode;
   const fontSize = nookies.get(ctx)?.fontSize;
-  const zustandStore = initializeStore({
+  const accessToken = nookies.get(ctx)?.accessToken;
+  let zustandStore = initializeStore({
     darkMode: darkMode ?? "dark",
     fontSize: fontSize ?? 21,
   });
 
   const queryClient = new QueryClient();
+  if (accessToken) {
+    await queryClient.prefetchQuery(["getProfile", accessToken], profileFetch, {
+      staleTime: Infinity,
+    });
+    const profile_data = (await queryClient.getQueryData([
+      "getProfile",
+      accessToken,
+    ])) as any;
+    zustandStore = initializeStore({
+      darkMode: darkMode ?? "dark",
+      fontSize: fontSize ?? 21,
+      profile: profile_data,
+    });
+    if (profile_data?.settings?.autoBookmark) {
+      updateBookmark({ operation: "add", chapSlug: slug });
+    }
+  }
   await queryClient.prefetchQuery(["chapterFetch", slug], chapterFetch, {
     staleTime: Infinity,
   });
