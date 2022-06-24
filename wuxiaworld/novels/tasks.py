@@ -165,77 +165,6 @@ def download_images():
                 print(e)
                 continue
 
-test_json_1 = {
-    "name": "Martial Peak",
-    "url": "https://www.novelupdates.com/series/martial-peak/",
-    "novel_info": {
-        "nu_id": "2866",
-        "description": "The journey to the martial peak is a lonely, solitary and long one.  In the face of adversity, you must survive and remain unyielding. Only then can you break through and continue on your journey to become the strongest. High Heaven Pavilion tests its disciples in the harshest ways to prepare them for this journey. One day the lowly sweeper Yang Kai managed to obtain a black book, setting him on the road to the peak of the martials world.\n",
-        "novel_type": "Web Novel",
-        "genres": [
-            {
-                "name": "Action",
-                "title": "A work typically depicting fighting, violence, chaos, and fast paced motion.",
-                "url": "https://www.novelupdates.com/genre/action/"
-            },
-        ],
-        "tags": [
-            {
-                "name": "Weak to Strong",
-                "title": "This TAG is used to indicate the stories in which the protagonist starts at a weak power level and becomes gradually strong as the story progresses.",
-                "url": "https://www.novelupdates.com/stag/weak-to-strong/"
-            }
-        ],
-        "rating_uncleaned": "(3.7 / 5.0, 665 votes)",
-        "language": {
-            "name": "Chinese",
-            "url": "https://www.novelupdates.com/language/chinese/",
-            "title": "View All Series in Chinese"
-        },
-        "authors": {
-            "Momo": {
-                "name": "Momo",
-                "url": "https://www.novelupdates.com/nauthor/momo/"
-            },
-            "\u83ab\u9ed8": {
-                "name": "\u83ab\u9ed8",
-                "url": "https://www.novelupdates.com/nauthor/%e8%8e%ab%e9%bb%98/"
-            }
-        },
-        "year_released": "2013",
-        "status_in_coo_uncleaned": "6009 Chapters (Completed)",
-        "licensed": "No",
-        "completely_translated": "No",
-        "original_publishers": {
-            "Qidian": {
-                "name": "Qidian",
-                "url": "https://www.novelupdates.com/opublisher/qidian/"
-            }
-        },
-        "english_publishers": {},
-        "rankings": {
-            "weekly_rank": "#2",
-            "monthly_rank": "#1",
-            "all_time_rank": "#2",
-            "monthly_reading_rank": "#344"
-        },
-        "reading_list_num": "8762",
-        "reviews": [
-            {
-                "profile": {
-                    "link": "https://www.novelupdates.com/user/25657/fact12345/",
-                    "name": "fact12345",
-                    "avatar": "https://forum.novelupdates.com/styles/default/xenforo/avatars/avatar_m.png"
-                },
-                "likes_received": "27",
-                "review_date": ": c711",
-                "last_read": "c711",
-                "rating": 2
-            }
-        ]
-    }
-}
-
 @shared_task()
 def load_novel_from_json():
     Novel = apps.get_model("novels", "Novel")
@@ -305,3 +234,26 @@ def load_novel_from_json():
                             })
                 novel.tag.add(tags_cache[tag["name"]])
             novel.save()
+
+@shared_task()
+def save_duplicated_chapters_novels():
+    from wuxiaworld.novels.serializers import NovelSerializer
+    Novel = apps.get_model("novels", "Novel")
+    all_novels = Novel.objects.all()
+    duplicated_novels = []
+    for novel in all_novels:
+        if novel.numOfChaps < novel.chapter_set.count():
+            duplicated_novels.append(novel)
+    
+    duplicated_data = NovelSerializer(duplicated_novels, many=True).data
+    with open("duplicated_novels.json", "w") as f:
+        json.dump(duplicated_data, f)
+    
+    completed_novels = []
+    for novel in all_novels:
+        if novel.numOfChaps == novel.chapter_set.count():
+            completed_novels.append(novel)
+    completed_data = NovelSerializer(completed_novels, many=True).data
+    with open("completed_novels.json", "w") as f:
+        json.dump(completed_data, f)
+    

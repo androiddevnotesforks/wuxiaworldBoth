@@ -92,3 +92,4 @@ class AnnouncementAdmin(admin.ModelAdmin):
 class ReportAdmin(admin.ModelAdmin):
     list_display = ['title', "description", "reported_by", "chapter"]
     list_filter = ('title',)
+    search_fields = ['chapter__novSlugChapSlug' ]
