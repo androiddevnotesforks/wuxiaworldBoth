@@ -5,7 +5,7 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.urls import include, path,re_path
 from django.views import defaults as default_views
 from django.views.generic import TemplateView
-from wuxiaworld.novels.views.util_views import return_robots
+from wuxiaworld.novels.views.util_views import getSiteMap, return_robots
 from wuxiaworld.novels.views.views import (deleteDuplicate, deleteUnordered, addNovels,siteMap,
             addSources, replace_images)
 from wuxiaworld.novels.views.views import (GoogleLogin, FacebookLogin)
@@ -27,6 +27,8 @@ urlpatterns += [
     # API base url
     path("robots.txt", return_robots),
     path("robots.txt/", return_robots),
+    path("sitemap.xml", getSiteMap),
+    path("sitemap.xml/", getSiteMap),
     path("api/", include("wuxiaworld.novels.api_router")),
     # DRF auth token
     path("upload/novels", addNovels),

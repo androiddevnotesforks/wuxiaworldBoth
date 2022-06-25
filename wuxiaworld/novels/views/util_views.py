@@ -46,6 +46,15 @@ def siteMap(request, *args,**kwargs):
                 for x in allNovels]) + bottom
     return HttpResponse(sitemap, content_type='text/xml')
 
+def getSiteMap(request, *args,**kwargs):
+    allNovels = Novel.objects.values_list('slug', 'last_chap_updated').all()
+    top = '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+    bottom = "</urlset>"
+    sitemap = top+"\n".join([f"<url><loc>https://www.wuxiaworld.eu/novel/{x[0]}</loc><lastmod>{x[1].date()}</lastmod></url>" \
+                for x in allNovels]) + bottom
+    return HttpResponse(sitemap, content_type='text/xml')
+
+
 def return_robots(request):
     lines = [
         "User-Agent: *",
