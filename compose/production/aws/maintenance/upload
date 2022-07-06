@@ -20,7 +20,7 @@ export AWS_STORAGE_BUCKET_NAME="${AWS_STORAGE_BUCKET_NAME}"
 
 message_info "Upload the backups directory to S3 bucket {$AWS_STORAGE_BUCKET_NAME}"
 
-aws s3 cp ${BACKUP_DIR_PATH} s3://${AWS_STORAGE_BUCKET_NAME}${BACKUP_DIR_PATH} --recursive
+aws s3 cp ${BACKUP_DIR_PATH} s3://${AWS_STORAGE_BUCKET_NAME}${BACKUP_DIR_PATH} --recursive --endpoint=https://fra1.digitaloceanspaces.com
 
 message_info "Cleaning the directory ${BACKUP_DIR_PATH}"
 
