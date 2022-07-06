@@ -20,10 +20,6 @@ const Background = (props) => {
       profileUpdate(data);
     }
   }, [data]);
-  useEffect(() => {
-    console.log(darkMode);
-  }, [darkMode]);
-
   return (
     <MantineProvider
       theme={{

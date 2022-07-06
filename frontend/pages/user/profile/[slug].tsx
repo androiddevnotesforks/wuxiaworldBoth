@@ -44,7 +44,6 @@ export async function getServerSideProps(ctx) {
     "getProfile",
     accessToken,
   ])) as any;
-  console.log(profile);
   if (slug == "settings") {
     await queryClient.prefetchQuery(
       ["getSettings", accessToken],
