@@ -19,7 +19,8 @@ class NovelAdmin(admin.ModelAdmin):
 @admin.register(Chapter)
 class ChapterAdmin(admin.ModelAdmin):
     list_display = ["index", "novelParent", "created_at", "updated_at"]
-    search_fields = ['novelParent__name' ]
+    search_fields = ['novelParent__name', 'title' ]
+    list_select_related = ["novelParent"]
 
 @admin.register(NovelViews)
 class NovelViewsAdmin(admin.ModelAdmin):
@@ -29,7 +30,8 @@ class NovelViewsAdmin(admin.ModelAdmin):
             return (queriedNovel.first().name)
         else:
             return obj.views
-    list_display = ['views_name', "views", "created_at", "updated_at" ]
+    list_display = ['views_name', "views", "created_at", "updated_at", "weeklyViews",
+                    "monthlyViews", "yearlyViews"]
     search_fields = ['viewsNovelName']
 
 
@@ -38,12 +40,16 @@ class ProfileAdmin(admin.ModelAdmin):
     autocomplete_fields = ['reading_lists']
     search_fields = ['user__name']
     list_display = ["user","created_at", "updated_at"]
+    list_select_related = ["user"]
+
 
 @admin.register(Bookmark)
 class BookmarkAdmin(admin.ModelAdmin):
     autocomplete_fields = ['novel', "chapter"]
     search_fields = ['novel__name']
     list_display = ['novel', "chapter", "profile_name", "created_at","updated_at"]
+    list_select_related = ["novel", "chapter"]
+
     def profile_name(self,obj):
         return Profile.objects.get(reading_lists = obj).user.first_name
 
@@ -93,3 +99,4 @@ class ReportAdmin(admin.ModelAdmin):
     list_display = ['title', "description", "reported_by", "chapter"]
     list_filter = ('title',)
     search_fields = ['chapter__novSlugChapSlug' ]
+    list_select_related = ["chapter"]
