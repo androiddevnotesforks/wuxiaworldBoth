@@ -166,6 +166,19 @@ def download_images():
                 continue
 
 @shared_task()
+def download_images_from_json():
+    Novel = apps.get_model('novels', "Novel")
+    with open("images.json", "r", encoding="utf-8") as f:
+        data = json.load(f)
+    for novel in data:
+        if novel["name"] and novel["image"]:
+            try:
+                get_image_from_url(novel["image"], Novel.objects.get(name = novel["name"]))
+            except Exception as e:
+                print(e)
+                continue
+
+@shared_task()
 def load_novel_from_json():
     Novel = apps.get_model("novels", "Novel")
     Category = apps.get_model("novels", "Category")
