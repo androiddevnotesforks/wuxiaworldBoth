@@ -23,7 +23,7 @@ const BookmarkButton = ({ novelData, id, desktop }) => {
   const [bookmarked, setBookmarked] = useState(false);
 
   useEffect(() => {
-    if (data?.data?.created_at) {
+    if (data?.created_at) {
       setBookmarked(true);
     }
   }, [data]);
