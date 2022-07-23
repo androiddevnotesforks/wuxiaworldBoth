@@ -95,11 +95,14 @@ class BlacklistPatternAdmin(admin.ModelAdmin):
 class AnnouncementAdmin(admin.ModelAdmin):
     list_display = ['title', "description", "authored_by"]
 
-def go_to_chapter_edit(self, obj):
-    return format_html('<a class="btn" href="/admin/novels/chapter/{}/change/">Change</a>', obj.chapter.id)
 
 @admin.register(Report)
 class ReportAdmin(admin.ModelAdmin):
+    def go_to_chapter_edit(self, obj):
+        if obj.chapter:
+            return format_html('<a class="btn btn-outline-success float-right" href="/admin/novels/chapter/{}/change/">Change</a>', obj.chapter.id)
+        else:
+            return ""
     list_display = ['title', "description", "reported_by", "chapter", "go_to_chapter_edit"]
     list_filter = ('title',)
     search_fields = ['chapter__novSlugChapSlug' ]
