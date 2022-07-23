@@ -1,6 +1,7 @@
 from django.contrib import admin
 from .models import (Announcement, Novel,Author,Category,Chapter,NovelViews, 
                     Tag, Profile, Bookmark, Settings, BlacklistPattern, Review, Report)
+from django.utils.html import format_html
 
 def repeat_scrape_on(modeladmin, request, queryset):
     queryset.update(repeatScrape=True)
@@ -94,9 +95,13 @@ class BlacklistPatternAdmin(admin.ModelAdmin):
 class AnnouncementAdmin(admin.ModelAdmin):
     list_display = ['title', "description", "authored_by"]
 
+def go_to_chapter_edit(self, obj):
+    return format_html('<a class="btn" href="/admin/novels/chapter/{}/change/">Change</a>', obj.chapter.id)
+
 @admin.register(Report)
 class ReportAdmin(admin.ModelAdmin):
-    list_display = ['title', "description", "reported_by", "chapter"]
+    list_display = ['title', "description", "reported_by", "chapter", "go_to_chapter_edit"]
     list_filter = ('title',)
     search_fields = ['chapter__novSlugChapSlug' ]
     list_select_related = ["chapter"]
+    autocomplete_fields = ["chapter"]
