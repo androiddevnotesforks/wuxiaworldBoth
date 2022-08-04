@@ -147,10 +147,17 @@ def get_image_from_url(url, novel):
     im_small = img.resize((150, 210), Image.ANTIALIAS)
     im.save(f"{novel.slug}-full.jpg")
     im_small.save(f"{novel.slug}-thumb.jpg")
+    with open(f"{novel.slug}-full.jpg", "rb") as f:
+        novel.new_image = File(f, f"{novel.slug}-full.jpg")
+        novel.save()
 
-    novel.new_image.save(f"{novel.slug}-full.jpg", im, save = False)
-    novel.new_image_thumb.save(f"{novel.slug}-thumb.jpg", im_small, save = False)
-    novel.original_image.save(f"{novel.slug}.jpg", img, save = False)
+    with open(f"{novel.slug}-thumb.jpg", "rb") as f:
+        novel.new_image_thumb = File(f, f"{novel.slug}-thumb.jpg")
+        novel.save()
+    
+    with open(f"{novel.slug}.jpg", "rb") as f:
+        novel.original_image = File(f, f"{novel.slug}.jpg")
+        novel.save()
 
 @shared_task()
 def download_images():
