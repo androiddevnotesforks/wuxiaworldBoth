@@ -155,7 +155,7 @@ def get_image_from_url(url, novel):
         novel.new_image_thumb = File(f, f"{novel.slug}-thumb.jpg")
         novel.save()
     
-    with open(f"{novel.slug}.jpg", "rb") as f:
+    with open(f"{original}/{novel.slug}.jpg", "rb") as f:
         novel.original_image = File(f, f"{original}/{novel.slug}.jpg")
         novel.save()
 
