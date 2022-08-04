@@ -148,10 +148,9 @@ def get_image_from_url(url, novel):
     im.save(f"{novel.slug}-full.jpg")
     im_small.save(f"{novel.slug}-thumb.jpg")
 
-    novel.new_image.save(f"{novel.slug}-full.jpg", im)
-    novel.new_image_thumb.save(f"{novel.slug}-thumb.jpg", im_small)
-    novel.original_image.save(f"{novel.slug}.jpg", img)
-    novel.save()
+    novel.new_image.save(f"{novel.slug}-full.jpg", im, save = False)
+    novel.new_image_thumb.save(f"{novel.slug}-thumb.jpg", im_small, save = False)
+    novel.original_image.save(f"{novel.slug}.jpg", img, save = False)
 
 @shared_task()
 def download_images():
