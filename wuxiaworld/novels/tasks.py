@@ -156,7 +156,7 @@ def get_image_from_url(url, novel):
         novel.save()
     
     with open(f"{novel.slug}.jpg", "rb") as f:
-        novel.original_image = File(f, f"{novel.slug}.jpg")
+        novel.original_image = File(f, f"{original}/{novel.slug}.jpg")
         novel.save()
 
 @shared_task()
