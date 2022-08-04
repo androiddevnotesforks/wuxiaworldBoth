@@ -22,6 +22,7 @@ export async function getStaticProps(ctx) {
     props: {
       dehydratedState: dehydrate(queryClient),
     },
+    revalidate: 300, // In seconds
   };
 }
 const Requests = () => {
