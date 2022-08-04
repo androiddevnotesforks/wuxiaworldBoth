@@ -28,7 +28,7 @@ import LinkText from "../../components/common/LinkText";
 const searchFetch = ({ queryKey }) => {
   const [_, searchQuery, page, orderBy] = queryKey;
 
-  let link = `${apiHome}/search/?limit=12&offset=${page || 0 * 12}&search=${
+  let link = `${apiHome}/search/?limit=12&offset=${(page || 0) * 12}&search=${
     searchQuery || ""
   }`;
   if (orderBy) {
@@ -107,7 +107,7 @@ const SearchPage = ({ pages }) => {
     if (props.active === true) {
       return (
         <LinkText
-          href={`${routes.search}${query}?page=${props.page}&order_by=${orderBy}`}
+          href={`${routes.search}${query||""}?page=${props.page}&order_by=${orderBy}`}
         >
           <Button variant="filled">{props.page}</Button>
         </LinkText>
@@ -119,7 +119,7 @@ const SearchPage = ({ pages }) => {
       case "next":
         return page != pages ? (
           <LinkText
-            href={`${routes.search}${query}?page=${
+            href={`${routes.search}${query|| ""}?page=${
               parseInt(page) + 1
             }&order_by=${orderBy}`}
           >
@@ -130,7 +130,7 @@ const SearchPage = ({ pages }) => {
       case "prev":
         return page != 1 ? (
           <LinkText
-            href={`${routes.search}${query}?page=${
+            href={`${routes.search}${query||""}?page=${
               parseInt(page) - 1
             }&order_by=${orderBy}`}
           >
@@ -140,7 +140,7 @@ const SearchPage = ({ pages }) => {
       case "first":
         return Number(page) != 1 ? (
           <LinkText
-            href={`${routes.search}${query}?page=1&order_by=${orderBy}`}
+            href={`${routes.search}${query||""}?page=1&order_by=${orderBy}`}
           >
             <Button variant="default">{"<<"}</Button>
           </LinkText>
@@ -148,7 +148,7 @@ const SearchPage = ({ pages }) => {
       case "last":
         return page != Number(pagesCount) ? (
           <LinkText
-            href={`${routes.search}${query}?page=${Number(
+            href={`${routes.search}${query||""}?page=${Number(
               pagesCount
             )}&order_by=${orderBy}`}
           >
@@ -158,7 +158,7 @@ const SearchPage = ({ pages }) => {
       default:
         return (
           <LinkText
-            href={`${routes.search}${query}?page=${props.page}&order_by=${orderBy}`}
+            href={`${routes.search}${query||""}?page=${props.page}&order_by=${orderBy}`}
           >
             <Button variant="default">{props.page}</Button>
           </LinkText>
