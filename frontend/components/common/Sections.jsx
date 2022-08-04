@@ -22,11 +22,11 @@ const Sections = ({ categoryName, categorySlug, novelList, tagSlug }) => {
           novel?.image
             ? !desktop
               ? `${novel?.image?.replace(
-                  "https://cdn.wuxianovels.co/",
+                  "https://wuxiaworld.fra1.cdn.digitaloceanspaces.com/",
                   "https://ik.imagekit.io/opyvhypp7cj/"
                 )}?tr=w-150`
               : `${novel?.image?.replace(
-                  "https://cdn.wuxianovels.co/",
+                  "https://wuxiaworld.fra1.cdn.digitaloceanspaces.com/",
                   "https://ik.imagekit.io/opyvhypp7cj/"
                 )}?tr=w-500`
             : ""

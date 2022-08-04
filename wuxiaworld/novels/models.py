@@ -223,11 +223,47 @@ class Announcement(BaseModel):
     authored_by = models.ForeignKey(Profile, on_delete=models.CASCADE)
 
 class Report(BaseModel):
-    title = models.CharField(max_length = 100)
-    description = models.TextField()
+    class ReportStatus(models.TextChoices):
+        PENDING = 'PD', 'Pending'
+        REJECTED = 'RJ', 'Rejected'
+        APPROVED = 'AP', 'Approved'
+        APPROVED_CLOSED = 'AC', 'Approved and Closed'
+        INCOMPLETE_INFO = 'II', 'Incomplete Info Provided'
+
+    class ReportTypes(models.TextChoices):
+        NOVEL_ADD = 'NA', 'Novel Add'
+        CHAPTER_REPORT = 'CR', 'Chapter Report'
+        NOVEL_REPORT = 'NR', 'Novel Report'
+
+    description = models.TextField(null = True, blank = True)
+    reason = models.TextField(null = True, blank = True)
     reported_by = models.ForeignKey(Profile, on_delete=models.CASCADE, null = True, blank = True)
-    checked = models.BooleanField(default = False)
     chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE, null = True, blank = True)
+    novel = models.ForeignKey(Novel, on_delete=models.CASCADE, null = True, blank = True)
+    status = models.CharField(max_length = 2, choices = ReportStatus.choices, default = ReportStatus.PENDING)
+    type = models.CharField(max_length = 2, choices = ReportTypes.choices, default = ReportTypes.CHAPTER_REPORT)
+    request_count = models.IntegerField(default = 1)
+
+    def __str__(self):
+        if self.novel:
+            return f"{self.novel.name} - {self.status}"
+        elif self.chapter:
+            return f"{self.chapter.title} - {self.status}"
+        else:
+            return self.status    
+
+    def save(self, *args, **kwargs):
+        #Check if a report was previously created for this chapter
+        if self.chapter:
+            previous_report = Report.objects.filter(chapter = self.chapter)
+            if previous_report.exists():
+                previous_report.update(request_count = F('request_count')+1)
+        if self.novel:
+            previous_report = Report.objects.filter(novel__slug = self.novel.slug)
+            if previous_report.exists():
+                previous_report.update(request_count = F('request_count')+1)
+                return
+        super(Report, self).save(*args, **kwargs)
 
     class Meta:
-        unique_together = ('reported_by', 'chapter', "description")
+        ordering = ['-created_at']

@@ -10,8 +10,6 @@ import Seo from "../../components/common/Seo.js";
 import { routes } from "../../components/utils/Routes";
 // import { getSession, useSession } from "next-auth/react";
 import axios from "axios";
-import nookies from "nookies";
-import { useEffect } from "react";
 import { useStore } from "../../components/Store/Store";
 import { apiHome } from "../../components/utils/siteName";
 

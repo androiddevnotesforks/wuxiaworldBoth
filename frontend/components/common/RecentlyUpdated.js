@@ -13,7 +13,7 @@ import { apiHome } from "../utils/siteName";
 import { routes } from "../utils/Routes";
 import LinkText from "./LinkText";
 
-const StyledTableRow = styled(TableRow)(({ theme }) => ({
+export const StyledTableRow = styled(TableRow)(({ theme }) => ({
   "&:nth-of-type(odd)": {
     backgroundColor: theme.palette.action.hover,
   },
@@ -77,7 +77,7 @@ const RecentlyUpdated = ({ tag, category }) => {
                     src={
                       chapter?.novel_thumb
                         ? `${chapter?.novel_thumb?.replace(
-                            "https://cdn.wuxianovels.co/",
+                            "https://wuxiaworld.fra1.cdn.digitaloceanspaces.com/",
                             "https://ik.imagekit.io/opyvhypp7cj/"
                           )}?tr=w-80`
                         : ""

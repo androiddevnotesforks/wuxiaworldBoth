@@ -102,16 +102,9 @@ class NovelSerializer(serializers.ModelSerializer):
 
 class NovelInfoSerializer(serializers.ModelSerializer):
     image = serializers.ImageField(use_url=True, source = "new_image")
-    # imageThumb = serializers.ImageField(use_url=True, source = "new_image_thumb")
     class Meta:
         model = Novel
         fields = ('name', 'image', 'slug')
-
-class LoggedNovelInfoSerializer(serializers.ModelSerializer):
-    bookmarked = serializers.SerializerMethodField(method_name = "get_bookmark")
-    class Meta:
-        model = Novel
-        fields = ('name', 'image', 'description','slug','bookmarked')
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -241,6 +234,9 @@ class AnnouncementSerializer(serializers.ModelSerializer):
 class ReportSerializer(serializers.ModelSerializer):
     checked = serializers.CharField(read_only = True)
     reported_by = serializers.CharField( read_only = True)
+    request_count = serializers.IntegerField( read_only = True)
+    status = serializers.ChoiceField(choices = Report.ReportStatus.choices, read_only = True)
+    reason = serializers.CharField(read_only = True)
     class Meta:
         model = Report
         fields = "__all__"
@@ -250,6 +246,18 @@ class ReportSerializer(serializers.ModelSerializer):
         if auth:
             validated_data['reported_by'] = self.context['request'].user.profile_owner
         return super().create(validated_data)
+
+class ReportInfoSerializer(ReportSerializer):
+    chapter = ChaptersSerializer()
+    novel = NovelInfoSerializer()
+
+class ReportPublicSerializer(serializers.Serializer):
+    rejected_reports = ReportInfoSerializer(many = True)
+    approved_reports = ReportInfoSerializer(many = True)
+    pending_reports = ReportInfoSerializer(many = True)
+    chapter_reports = ReportInfoSerializer(many = True)
+    class Meta:
+        fields = ("rejected_reports", "approved_reports", "pending_reports", "chapter_reports")
 
 class ReviewSerializer(serializers.ModelSerializer):
     class Meta:

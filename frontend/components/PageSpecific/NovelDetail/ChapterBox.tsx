@@ -100,14 +100,22 @@ function ChapterBox({ novelParent, desktop }) {
   const requestChapters = () => {
     const notifId = notifications.showNotification({
       title: `Send the request`,
-      message: `Thanks for recommending the novel to be added. I'll take a look soon and add if possible. Try reading one of the novels in recommendations below in the meantime`,
-      autoClose: true,
+      message: (
+        <>
+          Will be added soon if possible. Check the status at{" "}
+          <LinkText href={routes.requests}>
+            <Text>Requests Page</Text>
+          </LinkText>{" "}
+        </>
+      ),
+      autoClose: 10000,
     });
     const details = {
       title: "Add Novel Request",
-      description: `Add this novel https://www.wuxiaworld.eu${routes.novel}/${novelParent}`,
+      description: ``,
+      type: "NA",
       chapter: null,
-      reported_by: null,
+      novel: novelParent,
     };
     axios
       .post(`${apiHome}/report/`, details)

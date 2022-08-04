@@ -2,6 +2,7 @@ from django.contrib import admin
 from .models import (Announcement, Novel,Author,Category,Chapter,NovelViews, 
                     Tag, Profile, Bookmark, Settings, BlacklistPattern, Review, Report)
 from django.utils.html import format_html
+from django.utils.timezone import now
 
 def repeat_scrape_on(modeladmin, request, queryset):
     queryset.update(repeatScrape=True)
@@ -96,6 +97,12 @@ class AnnouncementAdmin(admin.ModelAdmin):
     list_display = ['title', "description", "authored_by"]
 
 
+def change_approved(modeladmin, request, queryset):
+    queryset.update(status=Report.ReportStatus.APPROVED_CLOSED, updated_at = now() )
+
+def novel_rejected(modeladmin, request, queryset):
+    queryset.update(status=Report.ReportStatus.REJECTED, reason= "No source found", updated_at = now() )
+
 @admin.register(Report)
 class ReportAdmin(admin.ModelAdmin):
     def go_to_chapter_edit(self, obj):
@@ -103,8 +110,9 @@ class ReportAdmin(admin.ModelAdmin):
             return format_html('<a class="btn btn-outline-success float-right" href="/admin/novels/chapter/{}/change/">Change</a>', obj.chapter.id)
         else:
             return ""
-    list_display = ['title', "description", "reported_by", "chapter", "go_to_chapter_edit"]
-    list_filter = ('title',)
+    list_display = ["novel","chapter", "status", "type","reason", "reported_by", "go_to_chapter_edit"]
+    list_filter = ('status',"type")
     search_fields = ['chapter__novSlugChapSlug' ]
-    list_select_related = ["chapter"]
-    autocomplete_fields = ["chapter"]
+    list_select_related = ["chapter", "novel"]
+    autocomplete_fields = ["chapter", "novel"]
+    actions = [change_approved,novel_rejected]

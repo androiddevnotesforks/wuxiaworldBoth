@@ -86,9 +86,10 @@ const ChapterView = ({ chapterSlug }) => {
     });
     const details = {
       title: reportTitle,
-      description: reportComment,
+      description: `${reportTitle} \n${reportComment}`,
+      type: "CR",
       chapter: data?.id,
-      reported_by: profile?.user?.id,
+      novel: data?.novelParent,
     };
     axios
       .post(`${apiHome}/report/`, details)
