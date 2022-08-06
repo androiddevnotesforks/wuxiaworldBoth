@@ -255,11 +255,11 @@ class Report(BaseModel):
     def save(self, *args, **kwargs):
         #Check if a report was previously created for this chapter
         if self.chapter:
-            previous_report = Report.objects.filter(chapter = self.chapter)
+            previous_report = Report.objects.filter(chapter = self.chapter).exclude(id = self.id)
             if previous_report.exists():
                 previous_report.update(request_count = F('request_count')+1)
         if self.novel:
-            previous_report = Report.objects.filter(novel__slug = self.novel.slug)
+            previous_report = Report.objects.filter(novel__slug = self.novel.slug).exclude(id = self.id)
             if previous_report.exists():
                 previous_report.update(request_count = F('request_count')+1)
                 return
