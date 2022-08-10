@@ -93,9 +93,6 @@ const Sidebar = ({ opened, setOpened }) => {
           </Accordion.Item>
         )}
         <Accordion.Item label={<Title order={3}>Discuss</Title>}>
-          <a href="https://discord.gg/NV4tVGpxPr">
-            <Title order={4}>Join Discord</Title>
-          </a>
           <LinkText to={routes.suggestions}>
             <Title order={4}>Suggestions</Title>
           </LinkText>
