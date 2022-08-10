@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import { Hydrate, QueryClient, QueryClientProvider } from "react-query";
 import Navbar from "../components/Navbar/Navbar";
 import Background from "../components/Background/Background";
-import Footer from "../components/Footer/Footer";
 import { useRouter } from "next/router";
 import Loading from "../components/common/Loading";
 import ReactGA from "react-ga4";
@@ -74,7 +73,6 @@ const App = (props: AppProps) => {
             <Navbar />
 
             <Component {...pageProps} />
-            <Footer />
           </Background>
         </Hydrate>
       </QueryClientProvider>

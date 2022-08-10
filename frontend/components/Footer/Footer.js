@@ -12,13 +12,7 @@ const Footer = () => {
           <strong>React</strong> and <strong>Django</strong>
         </Title>
       </Container>
-      <Container>
-        <a href="https://discord.gg/NV4tVGpxPr">
-          <Title order={3} align="center">
-            <strong>Join Discord</strong>
-          </Title>
-        </a>
-      </Container>
+      
     </Paper>
   );
 };
