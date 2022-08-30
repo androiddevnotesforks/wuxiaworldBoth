@@ -14,6 +14,9 @@ import {
   Modal,
   Textarea,
   Select,
+  Slider,
+  Box,
+  Card,
 } from "@mantine/core";
 import { useQueryClient } from "react-query";
 import Background from "../../Background/Background.js";
@@ -31,14 +34,20 @@ import { useChapter, chapterFetch } from "../../hooks/useChapter";
 import GoogleAdText from "../../common/GoogleAdText";
 import ScrollUpButton from "./ScrollToTop.js";
 import { useNotifications } from "@mantine/notifications";
-import { useUpdateBookmark } from "../../hooks/useBookmark";
 import { useProfile } from "../../hooks/useProfile";
+import useSpeechSynthesis from "./speech_utils";
+import NewCard from "../../common/NewCard.js";
 
 const ChapterView = ({ chapterSlug }) => {
   const queryClient = useQueryClient();
   const accessToken = useStore((state) => state.accessToken);
   const changeSettings = useStore((state) => state.changeSettings);
   const fontSize = useStore((state) => state.fontSize);
+  const [rate, setRate] = useStore((state) => [state.rate, state.setRate]);
+  const [voiceName, setVoiceName] = useStore((state) => [
+    state.voiceName,
+    state.setVoiceName,
+  ]);
   const phone = useMediaQuery("(max-width: 1024px)");
   const { data } = useChapter(chapterSlug);
   const [reportComment, setReportComment] = useState("");
@@ -47,6 +56,34 @@ const ChapterView = ({ chapterSlug }) => {
   const [sentReport, setSentReport] = useState(false);
   const [opened, setOpened] = useState(false);
   const { data: profile } = useProfile({ enabled: Boolean(accessToken) });
+  const [setingsShow, setSettingsShow] = useState(false);
+  const { supported, speak, speaking, cancel, voices, paused, pause, resume } =
+    useSpeechSynthesis({
+      onEnd: () => {
+        console.log("test");
+      },
+    });
+
+  const playClick = () => {
+    if (paused) {
+      resume();
+    } else {
+      speak({
+        text: data?.text,
+        voice: voiceName
+          ? voices?.filter((voice) => voice.name == voiceName)[0]
+          : null,
+        rate,
+      });
+    }
+  };
+  const pauseClick = () => {
+    pause();
+  };
+  const stopClick = () => {
+    cancel();
+  };
+
   useEffect(() => {
     if (accessToken && profile?.user?.is_staff && data?.nextChap) {
       queryClient.prefetchQuery(
@@ -74,6 +111,9 @@ const ChapterView = ({ chapterSlug }) => {
       );
     }
   }, [profile]);
+  useEffect(() => {
+    window.speechSynthesis.cancel();
+  }, [voiceName, rate, chapterSlug]);
   const reportChapter = () => {
     setOpened(true);
   };
@@ -146,11 +186,11 @@ const ChapterView = ({ chapterSlug }) => {
     <div key={index}>
       <Text
         id="chapterText"
-        style={{
+        sx={(theme) => ({
           fontSize: `${fontSize}px`,
           lineHeight: "1.8em",
           marginTop: "1em",
-        }}
+        })}
       >
         {text}
       </Text>
@@ -184,6 +224,7 @@ const ChapterView = ({ chapterSlug }) => {
               </LinkText>
             )}
           </Breadcrumbs>
+
           {data && (
             <>
               <Center>
@@ -248,6 +289,70 @@ const ChapterView = ({ chapterSlug }) => {
                 )}
               </Group>
             </div>
+            {setingsShow && (
+              <Card
+                sx={(theme) => ({
+                  maxWidth: "300px",
+                  marginBottom: "20px",
+                  paddingTop: "30px",
+                  backgroundColor:
+                    theme.colorScheme == "light"
+                      ? theme.colors.gray[3]
+                      : theme.colors.dark[6],
+                })}
+              >
+                <Box
+                  sx={{
+                    align: "left",
+                    marginBottom: "40px",
+                  }}
+                >
+                  <Slider
+                    step={0.2}
+                    min={0}
+                    max={5}
+                    value={rate ?? 1}
+                    onChange={setRate}
+                    marks={[
+                      { value: 0, label: "0" },
+                      { value: 1, label: "1" },
+                      { value: 2, label: "2" },
+                      { value: 3, label: "3" },
+                      { value: 4, label: "4" },
+                      { value: 5, label: "5" },
+                    ]}
+                  />
+                </Box>
+                <Group position="center" grow>
+                  <Select
+                    data={voices.map((voice) => {
+                      return { label: voice.name, value: voice.name };
+                    })}
+                    onChange={setVoiceName}
+                    value={voiceName}
+                  />
+                </Group>
+              </Card>
+            )}
+            <Group direction="column">
+              <Group position="left">
+                <Button
+                  onClick={() => setSettingsShow(!setingsShow)}
+                  radius="xl"
+                >
+                  ⚙️
+                </Button>
+                {(paused || !speaking) && (
+                  <Button onClick={playClick}>Play</Button>
+                )}
+                {speaking && (
+                  <>
+                    {!paused && <Button onClick={pauseClick}>Pause</Button>}
+                    <Button onClick={stopClick}>Stop</Button>
+                  </>
+                )}
+              </Group>
+            </Group>
             <Modal
               opened={opened}
               onClose={() => setOpened(false)}

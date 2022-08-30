@@ -39,3 +39,6 @@ app.conf.beat_schedule = {
         'schedule': 60*5,
     }
 }
+
+if os.environ.get("DEBUG", False):
+    app.conf.beat_schedule = {}

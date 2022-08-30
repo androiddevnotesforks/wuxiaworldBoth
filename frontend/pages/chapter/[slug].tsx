@@ -67,10 +67,14 @@ export async function getServerSideProps(ctx) {
   const { slug } = ctx.params;
   const darkMode = nookies.get(ctx)?.darkMode;
   const fontSize = nookies.get(ctx)?.fontSize;
+  const rate = nookies.get(ctx)?.rate;
+  const voiceName = nookies.get(ctx)?.voiceName;
   const accessToken = nookies.get(ctx)?.accessToken;
   let zustandStore = initializeStore({
     darkMode: darkMode ?? "dark",
     fontSize: fontSize ?? 21,
+    rate: JSON.parse(rate) ?? 1,
+    voiceName: voiceName || "",
   });
 
   const queryClient = new QueryClient();
@@ -86,6 +90,8 @@ export async function getServerSideProps(ctx) {
       darkMode: darkMode ?? "dark",
       fontSize: fontSize ?? 21,
       profile: profile_data,
+      rate: rate ?? 1,
+      voiceName: voiceName || "",
     });
     if (profile_data?.settings?.autoBookmark) {
       updateBookmark({ operation: "add", chapSlug: slug });

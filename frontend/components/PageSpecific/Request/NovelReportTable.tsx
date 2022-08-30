@@ -1,4 +1,4 @@
-import { Image, Text } from "@mantine/core";
+import { Button, Group, Image, Text } from "@mantine/core";
 import {
   Table,
   TableBody,
@@ -7,11 +7,14 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
+import { useState } from "react";
 import LinkText from "../../common/LinkText";
 import { StyledTableRow } from "../../common/RecentlyUpdated";
 import { routes } from "../../utils/Routes";
 
 const NovelReportTable = ({ data, showReason, showActioned }) => {
+  const [showCount, setShowCount] = useState(5);
+
   return (
     <TableContainer>
       <Table sx={{ minWidth: 300 }} aria-label="customized table">
@@ -44,7 +47,7 @@ const NovelReportTable = ({ data, showReason, showActioned }) => {
         </TableHead>
 
         <TableBody>
-          {data?.map((report) => (
+          {data?.slice(0, showCount)?.map((report) => (
             <StyledTableRow key={report?.id}>
               <TableCell component="th" scope="row">
                 <Image
@@ -90,6 +93,13 @@ const NovelReportTable = ({ data, showReason, showActioned }) => {
           ))}
         </TableBody>
       </Table>
+      {data?.length > showCount && (
+        <Group position="center">
+          <Button onClick={() => setShowCount(showCount + 10)}>
+            Show More
+          </Button>
+        </Group>
+      )}
     </TableContainer>
   );
 };

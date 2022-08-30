@@ -22,7 +22,7 @@ export async function getStaticProps(ctx) {
     props: {
       dehydratedState: dehydrate(queryClient),
     },
-    revalidate: 300, // In seconds
+    revalidate: 60, // In seconds
   };
 }
 const Requests = () => {
@@ -43,19 +43,7 @@ const Requests = () => {
               made. Requests made by logged in users are given priority
             </Title>
           </Center>
-          <Card shadow="lg" sx={{ marginTop: "20px" }}>
-            <Title order={2} align="center">
-              Approved Novel Requests
-            </Title>
 
-            {data && (
-              <NovelReportTable
-                data={data.approved_reports}
-                showReason={false}
-                showActioned={true}
-              />
-            )}
-          </Card>
           <Card shadow="lg" sx={{ marginTop: "20px" }}>
             <Title order={2} align="center">
               Pending Novel Requests
@@ -66,6 +54,19 @@ const Requests = () => {
                 data={data.pending_reports}
                 showReason={false}
                 showActioned={false}
+              />
+            )}
+          </Card>
+          <Card shadow="lg" sx={{ marginTop: "20px" }}>
+            <Title order={2} align="center">
+              Approved Novel Requests
+            </Title>
+
+            {data && (
+              <NovelReportTable
+                data={data.approved_reports}
+                showReason={false}
+                showActioned={true}
               />
             )}
           </Card>

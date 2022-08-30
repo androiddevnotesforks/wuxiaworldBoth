@@ -20,6 +20,8 @@ const getDefaultInitialState = () => ({
   darkMode: "dark",
   accessToken: parseCookies().accessToken,
   profile: {},
+  rate: 1,
+  voiceName: "",
 });
 const zustandContext: any = createContext();
 export const Provider = zustandContext.Provider;
@@ -41,16 +43,29 @@ export const initializeStore = (preloadedState = {}) => {
       set(() => ({ profile }));
       set(() => ({ settings: profile?.settings }));
     },
+    setRate: (rate) => {
+      set(() => ({ rate }));
+      setCookie(null, "rate", rate);
+    },
+    setVoiceName: (voiceName) => {
+      set(() => ({ voiceName }));
+
+      setCookie(null, "voiceName", voiceName);
+    },
     axiosRun: () => {
       const cookies = parseCookies();
       const token = cookies?.accessToken;
       const darkMode = cookies?.darkMode;
+      const rate = cookies?.rate;
       if (token) {
         axios.defaults.headers.common["Authorization"] = `Token ${token}`;
       }
 
       if (darkMode !== "dark" && darkMode !== "light") {
         setCookie(null, "darkMode", "dark");
+      }
+      if (!rate) {
+        setCookie(null, "rate", 1);
       }
     },
     logOut: () => {

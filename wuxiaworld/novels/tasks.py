@@ -50,7 +50,8 @@ def new_novel(x):
             author, _ = Author.objects.get_or_create(slug = slugify(x['Book Author']),
                                                     defaults = {'name' : x['Book Author']})
         except Exception as e:
-            logger.error(f"Book {x['Book Name']} , author {x['Book Author']} already exists")
+            # logger.error(f"Book {x['Book Name']} , author {x['Book Author']} already exists")
+            pass
         
         
         
