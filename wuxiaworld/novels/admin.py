@@ -32,11 +32,19 @@ class NovelAdmin(admin.ModelAdmin):
     def is_eighteen(self, obj):
         return obj.is_eighteen
 
+def chapter_turn_eighteen_on(modeladmin, request, queryset):
+    queryset.update(is_eighteen= True)
+
+def chapter_turn_eighteen_off(modeladmin, request, queryset):
+    queryset.update(is_eighteen= False)
+
 @admin.register(Chapter)
 class ChapterAdmin(admin.ModelAdmin):
     list_display = ["index", "novelParent", "is_eighteen", "created_at", "updated_at"]
     search_fields = ['novelParent__name', 'title' ]
     list_select_related = ["novelParent"]
+    actions = [chapter_turn_eighteen_on,chapter_turn_eighteen_off]
+
 
 @admin.register(NovelViews)
 class NovelViewsAdmin(admin.ModelAdmin):
