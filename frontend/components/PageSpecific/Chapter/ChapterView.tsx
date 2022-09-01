@@ -404,7 +404,23 @@ const ChapterView = ({ chapterSlug }) => {
               </Container>
             ) : (
               <>
-                {chapterParts}
+                {data?.is_eighteen ? (
+                  <>
+                    <Group position="center" sx={{ paddingTop: "30px" }}>
+                      <Title order={4}>
+                        This Chapter is 18+ , you need to login before you can
+                        read this.
+                      </Title>
+                    </Group>
+                    <Group position="center" sx={{ paddingTop: "30px" }}>
+                      <LinkText href={routes.login}>
+                        <Title order={3}>Click here to go to login</Title>
+                      </LinkText>
+                    </Group>
+                  </>
+                ) : (
+                  { chapterParts }
+                )}
                 <Container
                   sx={{
                     paddingTop: "10px",

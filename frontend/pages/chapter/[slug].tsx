@@ -143,6 +143,7 @@ const Chapter = (props) => {
           image={""}
           loading={false}
         />
+
         <ChapterView chapterSlug={slug} />
         <Container sx={{ maxWidth: "700px", position: "relative" }}>
           <Container size="md" ref={observe}>

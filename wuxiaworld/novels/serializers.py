@@ -27,7 +27,8 @@ class ChapterSerializer(serializers.ModelSerializer):
     class Meta:
         model = Chapter
         lookup_field = "novSlugChapSlug"
-        fields = ('index','title',"text", "nextChap","novelParent","novelParentName", "prevChap", "id")
+        fields = ('index','title',"text", "nextChap","novelParent","novelParentName", "prevChap", "id",
+                  "is_eighteen")
     def get_next_chap(self,obj):
         nextChap = Chapter.objects.filter(novelParent = obj.novelParent, index__gt = obj.index )
         if nextChap:

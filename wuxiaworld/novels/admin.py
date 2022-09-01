@@ -3,6 +3,7 @@ from .models import (Announcement, Novel,Author,Category,Chapter,NovelViews,
                     Tag, Profile, Bookmark, Settings, BlacklistPattern, Review, Report)
 from django.utils.html import format_html
 from django.utils.timezone import now
+from django.db.models import Count, F, Value
 
 def repeat_scrape_on(modeladmin, request, queryset):
     queryset.update(repeatScrape=True)
@@ -10,17 +11,30 @@ def repeat_scrape_on(modeladmin, request, queryset):
 def repeat_scrape_off(modeladmin, request, queryset):
     queryset.update(repeatScrape=False)
 
+def novel_turn_eighteen(modeladmin, request, queryset):
+    for query in queryset:
+        chapters = Chapter.objects.filter(novelParent=query)
+        previous_eighteen = chapters.first().is_eighteen
+        chapters.update(is_eighteen= not previous_eighteen)
+
 # Register your models here.
 @admin.register(Novel)
 class NovelAdmin(admin.ModelAdmin):
-    list_display = ["name", "repeatScrape", "created_at", "updated_at"]
-    actions = [repeat_scrape_on,repeat_scrape_off]
-    list_filter = ("source_novel__base_url", "repeatScrape","category")
+    list_display = ["name", "repeatScrape", "created_at", "updated_at", "is_eighteen"]
+    actions = [repeat_scrape_on,repeat_scrape_off, novel_turn_eighteen]
+    list_filter = ("source_novel__base_url", "repeatScrape","category", "chapter__is_eighteen")
     search_fields = ['name']
+
+    def get_queryset(self, request):
+        qs = super(NovelAdmin, self).get_queryset(request).annotate(is_eighteen = F('chapter__is_eighteen')) 
+        return qs
+
+    def is_eighteen(self, obj):
+        return obj.is_eighteen
 
 @admin.register(Chapter)
 class ChapterAdmin(admin.ModelAdmin):
-    list_display = ["index", "novelParent", "created_at", "updated_at"]
+    list_display = ["index", "novelParent", "is_eighteen", "created_at", "updated_at"]
     search_fields = ['novelParent__name', 'title' ]
     list_select_related = ["novelParent"]
 
@@ -60,6 +74,7 @@ class ReviewAdmin(admin.ModelAdmin):
     autocomplete_fields = ['novel', 'owner_user', "last_read_chapter"]
     list_display = ['get_user', "title", "total_score", "last_read_chapter", 
                 "novel"]
+    search_fields = ['novel__name']
     def get_user(self,obj):
         return obj.owner_user.user
 
@@ -112,7 +127,7 @@ class ReportAdmin(admin.ModelAdmin):
             return ""
     list_display = ["novel","chapter", "status", "type","reason", "reported_by", "go_to_chapter_edit"]
     list_filter = ('status',"type")
-    search_fields = ['chapter__novSlugChapSlug' ]
+    search_fields = ['chapter__novSlugChapSlug', "novel__name"]
     list_select_related = ["chapter", "novel"]
     autocomplete_fields = ["chapter", "novel"]
     actions = [change_approved,novel_rejected]

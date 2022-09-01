@@ -154,6 +154,7 @@ class Chapter(BaseModel):
     novSlugChapSlug = models.CharField( max_length = 200, blank = True, default = None,
                 db_index = True)
     scrapeLink = models.CharField(max_length = 200, blank = False)
+    is_eighteen = models.BooleanField(default = False)
     def save(self, *args, **kwargs):
         if not self.index:
             self.index = Chapter.objects.filter(novelParent = self.novelParent).count()+1
