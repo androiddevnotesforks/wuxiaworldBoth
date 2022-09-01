@@ -50,7 +50,10 @@ class NovelSerializerView(viewsets.ModelViewSet):
             return self.serializer_class
 
     def get_queryset(self):
-        return super().get_queryset().annotate(num_of_chaps = Count("chapter"))
+        queryset = super().get_queryset()
+        if self.request.user.is_authenticated:
+            return queryset.annotate(num_of_chaps = Count("chapter"))
+        return queryset.filter(dmca = False).annotate(num_of_chaps = Count("chapter"))
 
     @cache_response(key_func = UserKeyConstructor(), timeout = 60*60*5)
     def retrieve(self, request, *args, **kwargs):

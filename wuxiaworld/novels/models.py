@@ -112,7 +112,7 @@ class Novel(BaseModel):
                              null = True, max_length=500)
     new_image_thumb = models.ImageField(storage=ThumbnailStorage(), blank = True,
                          null = True, max_length=500)
-
+    dmca = models.BooleanField(default = False)
     def __str__(self):
         return self.name
     

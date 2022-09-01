@@ -18,11 +18,14 @@ def novel_turn_eighteen(modeladmin, request, queryset):
         previous_eighteen = chapters.first().is_eighteen
         chapters.update(is_eighteen= not previous_eighteen)
 
+def novel_turn_dmca(modeladmin, request, queryset):
+    queryset.update(dmca = True, updated_at = now() )
+
 # Register your models here.
 @admin.register(Novel)
 class NovelAdmin(admin.ModelAdmin):
-    list_display = ["name", "repeatScrape", "created_at", "updated_at", "is_eighteen"]
-    actions = [repeat_scrape_on,repeat_scrape_off, novel_turn_eighteen]
+    list_display = ["name", "repeatScrape", "created_at", "updated_at", "is_eighteen", "dmca"]
+    actions = [repeat_scrape_on,repeat_scrape_off, novel_turn_eighteen, novel_turn_dmca]
     list_filter = ("source_novel__base_url", "repeatScrape","category", "chapter__is_eighteen")
     search_fields = ['name']
 

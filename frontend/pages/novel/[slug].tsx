@@ -37,7 +37,7 @@ export async function getStaticPaths() {
       headers,
     }
   );
-  const urls = response.data.slice(0, 500).map((item) => {
+  const urls = response.data.slice(0, 300).map((item) => {
     const value = { params: { slug: item.slug } };
     return value;
   });
@@ -59,6 +59,7 @@ export async function getStaticProps(ctx) {
     props: {
       dehydratedState: dehydrate(queryClient),
     },
+    revalidate: 120,
   };
 }
 
