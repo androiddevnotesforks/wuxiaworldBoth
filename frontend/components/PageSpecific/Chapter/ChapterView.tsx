@@ -404,7 +404,7 @@ const ChapterView = ({ chapterSlug }) => {
               </Container>
             ) : (
               <>
-                {data?.is_eighteen && (
+                {data?.is_eighteen && !accessToken && (
                   <>
                     <Group position="center" sx={{ paddingTop: "30px" }}>
                       <Title order={4}>
@@ -419,7 +419,8 @@ const ChapterView = ({ chapterSlug }) => {
                     </Group>
                   </>
                 )}
-                {!data.is_eighteen && chapterParts}
+
+                {(!data.is_eighteen || Boolean(accessToken)) && chapterParts}
                 <Container
                   sx={{
                     paddingTop: "10px",
