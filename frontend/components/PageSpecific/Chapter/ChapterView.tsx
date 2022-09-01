@@ -404,7 +404,7 @@ const ChapterView = ({ chapterSlug }) => {
               </Container>
             ) : (
               <>
-                {data?.is_eighteen ? (
+                {data?.is_eighteen && (
                   <>
                     <Group position="center" sx={{ paddingTop: "30px" }}>
                       <Title order={4}>
@@ -418,9 +418,8 @@ const ChapterView = ({ chapterSlug }) => {
                       </LinkText>
                     </Group>
                   </>
-                ) : (
-                  { chapterParts }
                 )}
+                {!data.is_eighteen && chapterParts}
                 <Container
                   sx={{
                     paddingTop: "10px",
