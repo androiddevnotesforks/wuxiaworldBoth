@@ -4,6 +4,7 @@ from .models import (Announcement, Novel,Author,Category,Chapter,NovelViews,
 from django.utils.html import format_html
 from django.utils.timezone import now
 from django.db.models import Count, F, Value
+from django.db.models import OuterRef, Subquery
 
 def repeat_scrape_on(modeladmin, request, queryset):
     queryset.update(repeatScrape=True)
@@ -26,8 +27,10 @@ class NovelAdmin(admin.ModelAdmin):
     search_fields = ['name']
 
     def get_queryset(self, request):
-        qs = super(NovelAdmin, self).get_queryset(request).annotate(is_eighteen = F('chapter__is_eighteen')) 
-        return qs
+        qs = super(NovelAdmin, self).get_queryset(request)
+        chapters = Chapter.objects.filter(novelParent = OuterRef('slug'))
+        new_qs = qs.annotate(is_eighteen = Subquery(chapters.values('is_eighteen')[:1]))
+        return new_qs
 
     def is_eighteen(self, obj):
         return obj.is_eighteen
